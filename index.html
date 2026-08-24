@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>占い暦</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#FF6FA1; --pink-deep:#E8558A; --pink-pale:#FFF3F7; --bg:#FFEAF1;
+    --card:#FFFFFF; --purple:#8B7BD8; --purple-bg:#F1EEFC;
+    --blue:#5FA9D8; --blue-bg:#EAF4FB; --green:#5FBE8B; --green-bg:#EBF9F1;
+    --gold:#E0A94D; --gold-bg:#FBF3E4; --text:#4A3A42; --sub:#9C8790;
+    --line:#FBE0EA; --shadow: 0 4px 18px rgba(255,111,161,0.14);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    background-color:#FFF6F9;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(232,85,138,.16) 0 12px, transparent 12px 26px),
+      repeating-linear-gradient(90deg, rgba(232,85,138,.16) 0 12px, transparent 12px 26px);
+    background-blend-mode:multiply;
+    color:var(--text); font-family:'M PLUS Rounded 1c','Hiragino Maru Gothic ProN','Yu Gothic',sans-serif;
+    padding-bottom:92px;
+  }
+  #scrollArea{}
+  .wrap{max-width:460px; margin:0 auto; padding:calc(env(safe-area-inset-top) + 20px) 14px 18px;}
+  .ic-wrap{display:inline-flex; vertical-align:middle;}
+  .ic-wrap svg{width:100%; height:100%; display:block;}
+
+  /* ===== topbar ===== */
+  .topbar{display:flex; align-items:flex-start; gap:12px; padding:6px 2px 14px;}
+  .menu-btn{
+    width:44px; height:44px; border-radius:50%; border:none; background:#fff; color:var(--pink-deep);
+    box-shadow:var(--shadow); flex:0 0 auto; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .avatar{
+    width:64px; height:64px; border-radius:50%; background:#fff; display:flex; align-items:center;
+    justify-content:center; box-shadow:var(--shadow); flex:0 0 auto; border:3px solid #fff; overflow:hidden;
+  }
+  .avatar .ic-wrap{width:52px; height:52px;}
+  .brand-titles{flex:1; text-align:center; position:relative; padding-top:6px;}
+  .brand-titles h1{
+    margin:0; font-size:27px; font-weight:800; color:var(--pink-deep); letter-spacing:1px;
+    display:inline-flex; align-items:center; gap:2px;
+  }
+  .heart-swoosh{font-size:19px; color:var(--pink); transform:rotate(8deg); margin-left:2px;}
+  .brand-titles p{margin:3px 0 0; font-size:11.5px; color:var(--sub);}
+  .heart-deco{position:absolute; font-size:19px; color:var(--pink); opacity:.65; font-weight:400; text-shadow:0 1px 0 rgba(255,255,255,.4);}
+  .hd1{top:-10px; left:0%; transform:rotate(-12deg);} .hd2{top:-6px; right:-2%; transform:rotate(10deg) scale(1.15);} .hd3{top:-6px; left:30%; font-size:13px; transform:rotate(-6deg);}
+
+  /* ===== drawer ===== */
+  .drawer-bg{display:none; position:fixed; inset:0; background:rgba(74,58,66,.4); z-index:60;}
+  .drawer-bg.show{display:block;}
+  .drawer{
+    position:fixed; top:0; left:0; bottom:0; width:78%; max-width:320px; background:#fff; z-index:61;
+    padding:22px 18px; transform:translateX(-105%); transition:transform .22s ease-out; overflow-y:auto;
+  }
+  .drawer-bg.show .drawer{transform:translateX(0);}
+  .drawer h3{color:var(--pink-deep); font-size:17px; margin:4px 0 16px; display:flex; align-items:center; gap:6px;}
+  .drawer h3 .ic-wrap{width:18px; height:18px; color:var(--pink-deep);}
+  .drawer-person{
+    display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-radius:14px;
+    background:var(--pink-pale); margin-bottom:9px; cursor:pointer; border:2px solid transparent;
+  }
+  .drawer-person.active{border-color:var(--pink); background:#fff;}
+  .drawer-person span.dn{font-weight:800; font-size:14.5px; display:flex; align-items:center; gap:6px;}
+  .drawer-person span.dn .ic-wrap{width:14px; height:14px; color:var(--pink);}
+  .drawer-person span.de{font-size:11px; color:var(--sub); cursor:pointer;}
+  .drawer-add{
+    display:flex; align-items:center; justify-content:center; gap:6px; padding:13px; border-radius:14px;
+    border:2px dashed var(--pink); color:var(--pink-deep); font-weight:800; cursor:pointer; margin-top:8px;
+  }
+
+  .card{
+    background:var(--card); border-radius:26px; padding:19px 18px 21px;
+    box-shadow:var(--shadow); margin-bottom:14px; border:1.5px solid var(--line);
+  }
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  @media (max-width:360px){ .grid2{grid-template-columns:1fr;} }
+  .grid2 .card{margin-bottom:0;}
+
+  .badge{
+    display:inline-block; background:var(--pink); color:#fff; font-size:12px; font-weight:800;
+    padding:6px 15px; border-radius:999px; margin-bottom:11px; box-shadow:0 2px 6px rgba(232,85,138,.25);
+  }
+  .today-date{font-size:30px; font-weight:800; color:var(--pink-deep); line-height:1.1;}
+  .today-date span{font-size:17px; margin-left:5px; color:var(--sub); font-weight:700;}
+  .today-line{font-size:14.5px; font-weight:700; margin-top:9px; line-height:1.6; display:flex; justify-content:space-between; align-items:flex-start; gap:6px;}
+  .today-line .ic-wrap{width:16px; height:16px; color:var(--pink); flex:0 0 auto; margin-top:2px;}
+
+  .mini-badges{display:flex; gap:5px; flex-wrap:wrap; margin:2px 0 10px;}
+  .mini-badges .mb{
+    background:var(--pink-pale); color:var(--pink-deep); font-size:10.8px; font-weight:700;
+    padding:4px 9px; border-radius:999px; display:inline-flex; align-items:center; gap:4px;
+  }
+  .mini-badges .mb .ic-wrap{width:12px; height:12px;}
+  .mini-badges .mb.daimyou{background:linear-gradient(135deg,var(--gold),var(--pink)); color:#fff;}
+  .tap-link{border-bottom:1.5px dotted currentColor; cursor:pointer;}
+  .keyword-box{background:var(--pink-pale); border-radius:18px; padding:16px; text-align:center; border:1px solid #FBD4E4;}
+  .keyword-box .label{font-size:11.5px; color:var(--pink-deep); font-weight:800; margin-bottom:6px; display:flex; align-items:center; justify-content:center; gap:5px;}
+  .keyword-box .label .ic-wrap{width:14px; height:14px; color:var(--green);}
+  .keyword-box .kw{font-size:20px; font-weight:800; color:var(--pink-deep); letter-spacing:.5px;}
+  .kw-heart{font-size:16px; color:var(--pink); margin-left:4px; display:inline-block; transform:rotate(-6deg);}
+  .lp-heart{font-size:17px; color:var(--pink); opacity:.75;}
+
+  h2.section-title{
+    font-size:15px; font-weight:800; color:var(--pink-deep); margin:24px 4px 10px;
+    display:flex; align-items:center; gap:7px;
+  }
+  h2.section-title .ic-wrap{width:16px; height:16px;}
+  .num-badge{
+    display:inline-flex; align-items:center; justify-content:center; width:22px; height:18px; border-radius:6px;
+    background:var(--purple-bg); color:var(--purple); font-size:9px; font-weight:800;
+  }
+  .numero-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; margin:12px 0 10px;}
+  .numero-grid .box{background:var(--pink-pale); border-radius:14px; padding:9px 4px; text-align:center;}
+  .numero-grid .box .n{font-size:19px; font-weight:800; color:var(--pink-deep);}
+  .numero-grid .box .l{font-size:10px; color:var(--sub); font-weight:700; margin-top:2px;}
+  .lifepath-row{display:flex; align-items:baseline; gap:9px; margin-bottom:4px;}
+  .lifepath-row .num{font-size:32px; font-weight:800; color:var(--pink-deep);}
+  .lifepath-row .lab{font-size:12px; color:var(--sub); font-weight:700;}
+  .meaning{font-size:12.5px; line-height:1.6; margin-top:8px; background:var(--pink-pale); padding:11px 13px; border-radius:14px;}
+  .meaning b{color:var(--pink-deep);}
+
+  .color-row{display:flex; align-items:center; gap:13px;}
+  .swatch{width:46px; height:46px; border-radius:50%; flex:0 0 auto; box-shadow:0 3px 8px rgba(0,0,0,.08);}
+  .color-row .cname{font-size:16px; font-weight:800;}
+  .color-row .cmean{font-size:12px; color:var(--sub); margin-top:2px; line-height:1.5;}
+
+  .theme-grid{display:grid; grid-template-columns:1fr 1fr; gap:9px;}
+  .theme-grid .tcard{border-radius:18px; padding:13px 12px; font-size:12px; line-height:1.55;}
+  .theme-grid .tcard .th{font-size:12.5px; font-weight:800; margin-bottom:5px; display:flex; align-items:center; gap:5px;}
+  .theme-grid .tcard .th .ic-wrap{width:15px; height:15px;}
+  .tcard.work{background:var(--purple-bg);} .tcard.work .th{color:var(--purple);}
+  .tcard.human{background:var(--blue-bg);} .tcard.human .th{color:var(--blue);}
+  .tcard.health{background:var(--green-bg);} .tcard.health .th{color:var(--green);}
+  .tcard.money{background:var(--gold-bg);} .tcard.money .th{color:var(--gold);}
+
+  .onepoint{
+    background:linear-gradient(135deg,var(--pink),var(--pink-deep)); color:#fff; border-radius:20px;
+    padding:17px; text-align:center; margin:12px 0; position:relative; overflow:hidden;
+  }
+  .onepoint .tag{font-size:11.5px; opacity:.9; font-weight:700; margin-bottom:5px;}
+  .onepoint .txt{font-size:15px; font-weight:800; line-height:1.6;}
+  .onepoint .overall-txt{font-size:13px; font-weight:600; line-height:1.85; text-align:left;}
+  .onepoint .heart-deco{color:#fff; opacity:.35; font-size:20px;}
+  .onepoint .op1{top:8px; left:12px;} .onepoint .op2{bottom:6px; right:14px; font-size:15px;}
+
+  .hero-advice{
+    background:linear-gradient(160deg,var(--pink) 0%,var(--pink-deep) 100%); color:#fff; border-radius:22px;
+    padding:20px 18px; margin-bottom:14px; position:relative; overflow:hidden; box-shadow:var(--shadow);
+  }
+  .hero-advice .heart-deco{color:#fff; opacity:.3; font-size:20px;}
+  .hero-advice .op1{top:10px; left:12px;} .hero-advice .op2{bottom:10px; right:14px; font-size:16px;}
+  .hero-date{font-size:11px; font-weight:700; opacity:.9; margin-bottom:6px;}
+  .hero-headline{font-size:19px; font-weight:800; line-height:1.4; margin-bottom:12px;}
+  .hero-bullets{list-style:none; margin:0 0 14px; padding:0; display:flex; flex-direction:column; gap:8px;}
+  .hero-bullets li{
+    display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.16); border-radius:12px;
+    padding:9px 12px; font-size:13.5px; font-weight:700;
+  }
+  .hero-bullets .ic-wrap{color:#fff; flex:0 0 auto;}
+  .hero-sub{font-size:12.5px; font-weight:500; line-height:1.85; text-align:left; opacity:.96;}
+
+  .divider-heart{display:flex; align-items:center; gap:8px; margin:20px 6px;}
+  .divider-heart::before, .divider-heart::after{content:''; flex:1; height:0; border-top:2px dashed var(--pink); opacity:.45;}
+  .divider-heart .ic-wrap{width:17px; height:17px; color:var(--pink); opacity:.85; flex:0 0 auto;}
+  .scatter-heart{position:absolute; color:var(--pink); opacity:.4; pointer-events:none;}
+  .card{position:relative;}
+  .mascot-peek{
+    position:absolute; border-radius:50%; background:#fff; border:3px solid #fff; box-shadow:var(--shadow);
+    overflow:hidden; display:flex; align-items:center; justify-content:center; z-index:5;
+    top:-18px; right:-12px;
+  }
+
+  textarea{
+    width:100%; min-height:74px; border:2px solid var(--line); border-radius:14px; padding:12px;
+    font-family:inherit; font-size:13.5px; resize:vertical; background:var(--pink-pale); color:var(--text);
+  }
+  textarea:focus{outline:none; border-color:var(--pink);}
+  .save-note{font-size:10.5px; color:var(--sub); margin-top:6px; text-align:right;}
+
+  .calendar-table{width:100%; border-collapse:collapse; margin-top:4px;}
+  .calendar-table td{padding:9px 4px; font-size:12.5px; border-bottom:1px solid var(--line);}
+  .calendar-table td.lab{color:var(--sub); font-weight:700; width:38%;}
+  .calendar-table td.val{font-weight:700; display:flex; align-items:center; gap:5px;}
+  .calendar-table td.val .ic-wrap{width:14px; height:14px; color:var(--pink);}
+  .auto-note{background:var(--pink-pale); color:var(--pink-deep); font-size:11.5px; font-weight:700; text-align:center; padding:9px; border-radius:12px; margin-top:10px;}
+  .disclaimer{font-size:10.5px; color:var(--sub); margin-top:9px; line-height:1.6;}
+
+  .cal-row{display:flex; align-items:center; gap:12px; padding:11px 4px; border-bottom:1px solid var(--line); position:relative;}
+  .cal-row:last-child{border-bottom:none;}
+  .cal-row.today{background:var(--pink-pale); border-radius:14px; padding-left:8px; padding-right:8px;}
+  .cal-date{flex:0 0 auto; width:52px; text-align:center;}
+  .cal-date .cd-md{font-size:16px; font-weight:800; color:var(--pink-deep); line-height:1.1;}
+  .cal-date .cd-wd{font-size:10px; color:var(--sub); font-weight:700;}
+  .cal-body{flex:1; min-width:0;}
+  .cal-kw{font-size:12.5px; font-weight:800; color:var(--pink-deep);}
+  .cal-line{font-size:11.5px; color:var(--text); margin-top:1px;}
+  .cal-today-tag{position:absolute; right:8px; top:8px; background:var(--pink); color:#fff; font-size:9px; font-weight:800; padding:3px 8px; border-radius:999px;}
+
+  /* ===== modal ===== */
+  .modal-bg{display:none; position:fixed; inset:0; background:rgba(74,58,66,.45); z-index:70; align-items:flex-end; justify-content:center;}
+  .modal-bg.show{display:flex;}
+  .modal{background:#fff; width:100%; max-width:460px; border-radius:22px 22px 0 0; padding:22px 20px 26px; animation:up .2s ease-out;}
+  @keyframes up{from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;}}
+  .modal h3{margin:0 0 14px; color:var(--pink-deep); font-size:17px;}
+  .modal label{font-size:12px; color:var(--sub); font-weight:700; display:block; margin:12px 0 5px;}
+  .modal input{width:100%; padding:12px 14px; border:2px solid var(--line); border-radius:12px; font-size:15px; font-family:inherit; background:var(--pink-pale); color:var(--text);}
+  .modal input:focus{outline:none; border-color:var(--pink);}
+  .btn-row{display:flex; gap:10px; margin-top:18px;}
+  .btn{flex:1; padding:14px; border:none; border-radius:14px; font-size:14.5px; font-weight:800; font-family:inherit; cursor:pointer;}
+  .btn.primary{background:var(--pink); color:#fff;}
+  .btn.ghost{background:var(--pink-pale); color:var(--pink-deep);}
+  .btn.danger{background:#fff; color:#D9536B; border:2px solid #FBD3DE;}
+
+  /* ===== bottom nav ===== */
+  .bottom-nav{
+    position:fixed; left:0; right:0; bottom:0; background:#fff; z-index:40;
+    display:flex; padding:16px 4px calc(6px + env(safe-area-inset-bottom));
+    box-shadow:0 -4px 14px rgba(255,111,161,.14);
+    border-radius:22px 22px 0 0; border-top:2px solid var(--pink-pale);
+  }
+  .bottom-nav::before{
+    content:''; position:absolute; left:0; right:0; top:-9px; height:18px;
+    background-image: radial-gradient(circle at 9px 9px, #fff 8.5px, transparent 9px);
+    background-size:18px 18px; background-repeat:repeat-x;
+    filter: drop-shadow(0 -1px 0 var(--pink-pale));
+  }
+  .nav-btn{
+    flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:4px;
+    font-family:inherit; color:var(--pink-deep); font-size:10px; font-weight:700; padding:4px 2px; cursor:pointer;
+    position:relative;
+  }
+  .nav-btn .ic-wrap{width:22px; height:22px; position:relative;}
+  .nav-btn.active .ic-wrap{filter:drop-shadow(0 2px 3px rgba(232,85,138,.35));}
+  .nav-btn.active{color:var(--pink-deep);}
+  .confetti{position:absolute; border-radius:50%; opacity:.85;}
+  .confetti.star{border-radius:0; clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);}
+  .nav-btn:nth-child(1) .c1{width:5px; height:5px; background:var(--purple); top:-6px; left:-9px;}
+  .nav-btn:nth-child(1) .c2{width:7px; height:7px; background:var(--green); top:2px; right:-11px;}
+  .nav-btn:nth-child(2) .c1{width:6px; height:6px; background:var(--pink); top:-7px; right:-8px;}
+  .nav-btn:nth-child(2) .c2{width:5px; height:5px; background:var(--purple); bottom:0; left:-10px;}
+  .nav-btn:nth-child(3) .c1{width:8px; height:8px; background:var(--gold); top:-8px; right:-10px;}
+  .nav-btn:nth-child(3) .c2{width:5px; height:5px; background:var(--blue); bottom:1px; left:-9px;}
+  .nav-btn:nth-child(4) .c1{width:6px; height:6px; background:var(--purple); top:-6px; left:-9px;}
+  .nav-btn:nth-child(4) .c2{width:5px; height:5px; background:var(--pink); bottom:1px; right:-10px;}
+  .nav-btn:nth-child(5) .c1{width:7px; height:7px; background:var(--gold); top:-8px; left:-8px;}
+  .nav-btn:nth-child(5) .c2{width:5px; height:5px; background:var(--pink); bottom:0; right:-10px;}
+
+  .toast{
+    position:fixed; left:50%; bottom:86px; transform:translateX(-50%) translateY(10px); background:var(--text);
+    color:#fff; padding:10px 18px; border-radius:999px; font-size:12.5px; z-index:80; opacity:0;
+    transition:.25s; pointer-events:none;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .empty-state{text-align:center; padding:50px 20px;}
+  .empty-state .em{width:70px; height:70px; margin:0 auto;}
+  .empty-state h2{color:var(--pink-deep); font-size:18px; margin:10px 0 6px;}
+  .empty-state p{color:var(--sub); font-size:13px; line-height:1.7;}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="navGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFA0C6"/>
+      <stop offset="1" stop-color="#E8558A"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div id="scrollArea">
+<div class="wrap">
+  <div class="topbar">
+    <button class="menu-btn" id="menuBtn"></button>
+    <div class="brand-titles">
+      <span class="heart-deco hd1">♡</span>
+      <span class="heart-deco hd3">♡</span>
+      <h1 id="brandTitle">占い暦<span class="heart-swoosh">♡</span></h1>
+      <span class="heart-deco hd2">♡</span>
+      <p>今日のわたしを、ちょっと知る。</p>
+    </div>
+    <div class="avatar" id="avatarBox"></div>
+  </div>
+
+  <div id="content"></div>
+</div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-tab="home" data-icon="navHome">今日の暦</button>
+  <button class="nav-btn" data-tab="calendar" data-icon="navCalendar">カレンダー</button>
+  <button class="nav-btn" data-tab="fav" data-icon="navHeart">お気に入り</button>
+  <button class="nav-btn" data-tab="dog" data-icon="navDog">わんこ</button>
+  <button class="nav-btn" data-tab="settings" data-icon="navGear">設定</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="avatarInput" accept="image/*" style="display:none;">
+
+<div class="drawer-bg" id="drawerBg">
+  <div class="drawer" onclick="event.stopPropagation()">
+    <h3><span class="ic-wrap" id="drawerTitleIcon"></span>占う人をえらぶ</h3>
+    <div id="drawerList"></div>
+    <div class="drawer-add" id="drawerAdd">＋ 新しく登録する</div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">占う人を追加</h3>
+    <label>お名前・呼び方</label>
+    <input id="inName" placeholder="例：わたし／娘／ゆうちゃん">
+    <label>生年月日</label>
+    <input id="inBirth" type="date">
+    <div class="btn-row">
+      <button class="btn ghost" id="btnCancel">キャンセル</button>
+      <button class="btn primary" id="btnSave">保存する</button>
+    </div>
+    <div class="btn-row" id="deleteRow" style="display:none;">
+      <button class="btn danger" id="btnDelete">この人を削除する</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="infoModalBg">
+  <div class="modal">
+    <h3 id="infoModalTitle"></h3>
+    <div id="infoModalBody" style="font-size:13px; line-height:1.85; color:var(--text);"></div>
+    <div class="btn-row"><button class="btn primary" id="infoModalClose">閉じる</button></div>
+  </div>
+</div>
+
+<script>
+/* ===== アイコン(SVG。絵文字フォントに依存しないよう全てSVGで用意) ===== */
+const ICONS = {
+  menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>',
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg>',
+  calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/><line x1="3.5" y1="10" x2="20.5" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>',
+  heart:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-10-9.1C.6 8.6 2.2 5 5.8 5c2 0 3.4 1.1 4.2 2.4C10.8 6.1 12.2 5 14.2 5c3.6 0 5.2 3.6 3.8 6.9C19.5 16.4 12 21 12 21z"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.9 7.9 0 0 0 0-2l2-1.5-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3h-4l-.4 2.1a8 8 0 0 0-1.7 1l-2.4-1-2 3.4L6.5 11a7.9 7.9 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 1.7 1L11 21h4l.4-2.1a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2.1-1.5z"/></svg>',
+  clover:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="9" r="5"/><circle cx="15" cy="9" r="5"/><circle cx="9" cy="15" r="5"/><circle cx="15" cy="15" r="5"/></svg>',
+  briefcase:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>',
+  handshake:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3 2.7-5 6-5s6 2 6 5"/><path d="M10 20c0-3 2.7-5 6-5s6 2 6 5"/></svg>',
+  leaf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20c8 0 14-6 14-14 0 0-14-2-14 14z"/><path d="M5 20c2-4 5-7 9-9"/></svg>',
+  moneybag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l2 3-3 2c3 1 5 4 5 7a7 7 0 0 1-14 0c0-3 2-6 5-7L7 7z"/><line x1="12" y1="12" x2="12" y2="16"/></svg>',
+  paw:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="10" r="2.1"/><circle cx="11" cy="7" r="2.1"/><circle cx="16" cy="7" r="2.1"/><circle cx="19" cy="11" r="2.1"/><path d="M12.5 12.5c-3.5 0-6 2.6-6 5.2 0 1.7 1.4 2.6 3 2 1-.4 1.9-.6 3-.6s2 .2 3 .6c1.6.6 3-.3 3-2 0-2.6-2.5-5.2-6-5.2z"/></svg>',
+  pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19l-4 1z"/></svg>',
+  moon:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5z"/></svg>',
+  sparkle:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>',
+  dog:'<svg viewBox="0 0 40 40"><ellipse cx="5.5" cy="23" rx="4.4" ry="6.4" fill="#EAE0DA"/><ellipse cx="34.5" cy="23" rx="4.4" ry="6.4" fill="#EAE0DA"/><circle cx="7" cy="10" r="5.6" fill="#EAE0DA"/><circle cx="13.5" cy="5.5" r="5.8" fill="#EAE0DA"/><circle cx="20" cy="4" r="5.8" fill="#EAE0DA"/><circle cx="26.5" cy="5.5" r="5.8" fill="#EAE0DA"/><circle cx="33" cy="10" r="5.6" fill="#EAE0DA"/><circle cx="9" cy="16" r="5" fill="#EAE0DA"/><circle cx="31" cy="16" r="5" fill="#EAE0DA"/><circle cx="20" cy="24" r="12.5" fill="#F4EEEA"/><ellipse cx="14.5" cy="27" rx="2.6" ry="1.7" fill="#FCC9DA" opacity="0.7"/><ellipse cx="25.5" cy="27" rx="2.6" ry="1.7" fill="#FCC9DA" opacity="0.7"/><circle cx="15" cy="23" r="1.8" fill="#4A3A42"/><circle cx="25" cy="23" r="1.8" fill="#4A3A42"/><ellipse cx="20" cy="28" rx="2.3" ry="1.7" fill="#4A3A42"/><path d="M14 34c2.5 1.6 9.5 1.6 12 0" stroke="#E8558A" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M18.3 35.6l1.7 1.7 1.7-1.7c.9-.9.9-2.2 0-2.9-.7-.6-1.6-.4-2 .2l-.1.1-.1-.1c-.4-.6-1.3-.8-2-.2-.9.7-.9 2 0 2.9z" fill="#E8558A"/></svg>',
+  navHome:'<svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5v7.5a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1" stroke-linejoin="round"/></svg>',
+  navCalendar:'<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1"/><rect x="3" y="4.5" width="18" height="5" rx="3" fill="#fff" opacity=".35"/><circle cx="8" cy="8" r="1.2" fill="#fff"/><circle cx="16" cy="8" r="1.2" fill="#fff"/><circle cx="8" cy="14" r="1" fill="#fff"/><circle cx="12" cy="14" r="1" fill="#fff"/><circle cx="16" cy="14" r="1" fill="#fff"/></svg>',
+  navHeart:'<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.1C.6 8.6 2.2 5 5.8 5c2 0 3.4 1.1 4.2 2.4C10.8 6.1 12.2 5 14.2 5c3.6 0 5.2 3.6 3.8 6.9C19.5 16.4 12 21 12 21z" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1"/><ellipse cx="8.3" cy="8.3" rx="1.6" ry="1" fill="#fff" opacity=".55" transform="rotate(-30 8.3 8.3)"/></svg>',
+  navGear:'<svg viewBox="0 0 24 24"><path d="M19.4 13a7.9 7.9 0 0 0 0-2l2-1.5-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3h-4l-.4 2.1a8 8 0 0 0-1.7 1l-2.4-1-2 3.4L6.5 11a7.9 7.9 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 1.7 1L11 21h4l.4-2.1a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2.1-1.5z" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="#fff"/></svg>',
+  navDog:'<svg viewBox="0 0 24 24"><ellipse cx="6" cy="9" rx="3.4" ry="4.6" fill="#F0DEC0" transform="rotate(-20 6 9)"/><ellipse cx="18" cy="9" rx="3.4" ry="4.6" fill="#F0DEC0" transform="rotate(20 18 9)"/><circle cx="12" cy="12" r="7.2" fill="#F7E7CE" stroke="#D9A65C" stroke-width="1"/><circle cx="9.3" cy="11" r="1.1" fill="#4A3A42"/><circle cx="14.7" cy="11" r="1.1" fill="#4A3A42"/><ellipse cx="12" cy="14.2" rx="1.4" ry="1" fill="#4A3A42"/><path d="M8.5 18.5l3.5-2 3.5 2-1.2-2.6h-4.6z" fill="#E8558A"/><circle cx="12" cy="17" r="1" fill="#C94A78"/></svg>',
+  heartMark:'<svg viewBox="0 0 60 90" fill="none"><line x1="10" y1="30" x2="18" y2="18" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><line x1="26" y1="14" x2="30" y2="4" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M30 82C10 68 4 52 4 40 4 28 14 20 24 20 28 20 30 22 30 26 30 22 32 20 36 20 46 20 56 28 56 40 56 52 50 68 30 82Z" fill="currentColor"/></svg>',
+  heartOutline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-10-9.1C.6 8.6 2.2 5 5.8 5c2 0 3.4 1.1 4.2 2.4C10.8 6.1 12.2 5 14.2 5c3.6 0 5.2 3.6 3.8 6.9C19.5 16.4 12 21 12 21z"/></svg>'
+};
+function ic(name, extra){ return '<span class="ic-wrap"'+(extra?(' style="'+extra+'"'):'')+'>'+ICONS[name]+'</span>'; }
+document.getElementById('menuBtn').innerHTML = ic('menu','width:20px;height:20px;');
+document.getElementById('drawerTitleIcon').innerHTML = ICONS.paw;
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  const name = btn.dataset.icon;
+  const label = btn.textContent;
+  btn.innerHTML = '<span class="ic-wrap" style="width:22px;height:22px;">'+ICONS[name]+
+    '<span class="confetti c1"></span><span class="confetti c2 star"></span></span><span>'+label+'</span>';
+});
+
+/* ===== ストレージ ===== */
+const LS_PEOPLE = 'uranai_people';
+const LS_CURRENT = 'uranai_current';
+function loadPeople(){ try{return JSON.parse(localStorage.getItem(LS_PEOPLE))||[];}catch(e){return [];} }
+function savePeople(list){ localStorage.setItem(LS_PEOPLE, JSON.stringify(list)); }
+function getCurrentId(){ return localStorage.getItem(LS_CURRENT); }
+function setCurrentId(id){ localStorage.setItem(LS_CURRENT, id); }
+
+/* ===== 乱数(日付+名前で固定される占い結果) ===== */
+function hashStr(str){
+  let h = 1779033703 ^ str.length;
+  for(let i=0;i<str.length;i++){
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  return function(){
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  };
+}
+function seededPick(rng, arr){ return arr[Math.floor(rng()*arr.length)]; }
+
+/* ===== 数秘術 ===== */
+function digitSum(str){ return str.split('').filter(c=>/[0-9]/.test(c)).reduce((a,c)=>a+Number(c),0); }
+function reduceFull(n){ while(n>9){ n = digitSum(String(n)); } return n; }
+function reduceKeepMaster(n){ while(n>9 && ![11,22,33].includes(n)){ n = digitSum(String(n)); } return n; }
+function calcNumerology(birth, todayDate){
+  const [y,m,d] = birth.split('-').map(Number);
+  const lifePath = reduceKeepMaster(digitSum(String(y)+String(m)+String(d)));
+  const ty = todayDate.getFullYear(), tm = todayDate.getMonth()+1, td = todayDate.getDate();
+  const personalYear = reduceFull(digitSum(String(m))+digitSum(String(d))+digitSum(String(ty)));
+  const personalMonth = reduceFull(personalYear + tm);
+  const personalDay = reduceFull(personalMonth + td);
+  return {lifePath, personalYear, personalMonth, personalDay};
+}
+const LIFEPATH_MEANING = {
+  1:'リーダーシップ・独立心・行動力', 2:'協調性・思いやり・サポート力', 3:'表現力・明るさ・創造性',
+  4:'誠実・堅実・積み上げる力', 5:'自由・変化を楽しむ冒険心', 6:'愛情・調和・面倒見の良さ',
+  7:'探究心・直感・内省力', 8:'実行力・豊かさを引き寄せる力', 9:'博愛・包容力・物事を完結させる力',
+  11:'直感・気づき・スピリチュアルな感受性', 22:'大きな夢をかたちにする力・組織力', 33:'やさしさ×愛×利他性'
+};
+
+/* ===== マヤ暦(ツォルキン暦・簡易版) ===== */
+const MAYA_SEALS = [
+ {name:'赤い龍', trait:'始まり・誕生・育む力'},
+ {name:'白い風', trait:'伝える力・コミュニケーション'},
+ {name:'青い夜', trait:'直感・夢・内なる声'},
+ {name:'黄色い種', trait:'可能性・成長・目標'},
+ {name:'赤い蛇', trait:'生命力・情熱・本能'},
+ {name:'白い世界の橋渡し', trait:'手放し・浄化・橋渡し'},
+ {name:'青い手', trait:'癒し・達成・実行力'},
+ {name:'黄色い星', trait:'美・調和・魅力'},
+ {name:'赤い月', trait:'感情・浄化・つながり'},
+ {name:'白い犬', trait:'愛・忠誠・信頼'},
+ {name:'青い猿', trait:'遊び心・創造性・魔法'},
+ {name:'黄色い人', trait:'自由・知恵・選ぶ力'},
+ {name:'赤い空歩く人', trait:'探求・成長・広い視野'},
+ {name:'白い魔法使い', trait:'魅力・時を超えた知恵'},
+ {name:'青い鷲', trait:'展望・洞察・大局を見る力'},
+ {name:'黄色い戦士', trait:'知性・勇気・問いかける力'},
+ {name:'赤い地球', trait:'シンクロニシティ・自然との調和'},
+ {name:'白い鏡', trait:'真実・映し出す力・秩序'},
+ {name:'青い嵐', trait:'変容・浄化するエネルギー'},
+ {name:'黄色い太陽', trait:'悟り・輝き・生命エネルギー'}
+];
+const MAYA_TONES = [
+ {name:'磁気', trait:'目的・引き寄せる力'},
+ {name:'月', trait:'課題を乗り越える力'},
+ {name:'電気', trait:'活性化・協力する力'},
+ {name:'自己存在', trait:'かたちにする力'},
+ {name:'倍音', trait:'中心に立つ・指令する力'},
+ {name:'律動', trait:'調和・平等を大切にする'},
+ {name:'共振', trait:'波長を合わせる力'},
+ {name:'銀河', trait:'調和と美を統合する'},
+ {name:'太陽', trait:'目的を脈動させ叶える力'},
+ {name:'惑星', trait:'実現し完成させる力'},
+ {name:'スペクトル', trait:'解放し手放す力'},
+ {name:'水晶', trait:'みんなで協力する力'},
+ {name:'宇宙', trait:'すべてを受け入れる力'}
+];
+function calcKin(input){
+  let d;
+  if(typeof input === 'string'){
+    const [y,m,dd] = input.split('-').map(Number);
+    d = Date.UTC(y, m-1, dd);
+  } else {
+    d = Date.UTC(input.getFullYear(), input.getMonth(), input.getDate());
+  }
+  const ref = Date.UTC(1987,7,16); // 1987/8/16 = KIN1 とする一般的な簡易計算
+  const diffDays = Math.round((d-ref)/86400000);
+  return ((diffDays % 260)+260)%260 + 1;
+}
+function mayaFromKin(kin){
+  return { kin, seal: MAYA_SEALS[(kin-1)%20], tone: MAYA_TONES[(kin-1)%13] };
+}
+
+/* ===== 九星気学(本命星・簡易版) ===== */
+const NINE_STAR_NAMES = ['一白水星','二黒土星','三碧木星','四緑木星','五黄土星','六白金星','七赤金星','八白土星','九紫火星'];
+const NINE_STAR_TRAIT = {
+  1:'柔軟で順応力が高く、人の気持ちを察する力に優れる星',
+  2:'堅実でまじめ、コツコツ積み上げる力と包容力のある星',
+  3:'行動的で好奇心旺盛、新しいスタートが得意な星',
+  4:'調和を大切にし、人と人をつなぐ縁の力を持つ星',
+  5:'包容力があり、良くも悪くも影響力が大きい中心的な星',
+  6:'責任感が強く、誇り高いリーダーシップを持つ星',
+  7:'社交的で人を楽しませる魅力と金運の強さを持つ星',
+  8:'忍耐強く、変化と積み重ねで物事を成し遂げる星',
+  9:'直感力と美的センスに優れ、華やかさを放つ星'
+};
+function calcNineStar(birthStr){
+  const [y,m,d] = birthStr.split('-').map(Number);
+  let year = y;
+  if(m < 2 || (m===2 && d<4)) year -= 1; // 立春(2/4簡易)より前は前年扱い
+  let dr = digitSum(String(year));
+  while(dr>9){ dr = digitSum(String(dr)); }
+  let star = 11 - dr;
+  if(star > 9) star -= 9;
+  return star; // 1-9
+}
+
+/* ===== コンテンツ辞書 ===== */
+const THEMES = [
+ {kw:'整理・完了・突破', theme:'完了・整理・手放す・区切る日', desc:'これまでの見直しをして、次へ進む余白をつくる日。終わらせることで、心が軽くなり、運気も流れ出します。', line:'増やすより、ひとつ終わらせる。', one:'ずっと気になっている“小さな未完了”を1つ閉じる。'},
+ {kw:'挑戦・拡大・前進', theme:'新しい一歩を踏み出す日', desc:'迷っていたことを、思い切って動かしてみるとき。小さな行動が、大きな流れをつくります。', line:'迷ったら、まず一歩踏み出してみる。', one:'気になっていたことに、小さく一歩踏み出してみる。'},
+ {kw:'休息・充電・見直し', theme:'がんばりを緩める日', desc:'予定を詰め込みすぎず、ゆったり過ごすのが吉。心と体の声を、ちゃんと聞いてあげましょう。', line:'がんばりすぎず、今日はゆるめる。', one:'予定を1つ減らして、休む時間をつくる。'},
+ {kw:'直感・ひらめき・行動', theme:'ピンときたら動いていい日', desc:'理屈より感覚を信じてOK。ふと浮かんだアイデアは、書き留めておくと後で役立ちます。', line:'ピンときたことを、信じてみる。', one:'ふと浮かんだアイデアを、メモに書いておく。'},
+ {kw:'感謝・つながり・調和', theme:'人とのご縁を大切にする日', desc:'誰かへの「ありがとう」を言葉にしてみて。ちょっとした一言が、関係をあたたかくします。', line:'「ありがとう」を、声に出してみる。', one:'誰か一人に「ありがとう」を伝える。'},
+ {kw:'手放す・浄化・区切り', theme:'身も心もすっきりさせる日', desc:'不要なものを手放すと、新しい運気が入るスペースができます。片付けや断捨離にも◎。', line:'手放すことで、風通しをよくする。', one:'机の上や引き出しを、少しだけ片付ける。'},
+ {kw:'準備・種まき・スタート', theme:'未来のための準備をする日', desc:'すぐに結果が出なくても大丈夫。今日まいた種は、時間差でちゃんと育ちます。', line:'焦らず、今日はタネをまくだけでいい。', one:'やりたいことリストに、1行書き足す。'},
+ {kw:'集中・継続・積み上げ', theme:'コツコツ積み上げる日', desc:'派手さより、地道な積み重ねが力になるとき。今日の一歩が、後から効いてきます。', line:'小さな積み重ねが、明日をつくる。', one:'今日やることを、1つだけ確実に終わらせる。'},
+ {kw:'発信・表現・自分らしさ', theme:'自分の言葉で伝える日', desc:'遠慮せず、思っていることを表現してみて。あなたらしさが、誰かの安心にもつながります。', line:'自分の言葉で、素直に伝えてみる。', one:'思っていることを、誰かに話してみる。'},
+ {kw:'信頼・受け取る・流れに乗る', theme:'流れに身をまかせる日', desc:'無理にコントロールしようとせず、流れに乗ってみて。思っている以上に、物事はうまく進みます。', line:'流れにまかせて、力を抜いてみる。', one:'予定を詰め込まず、流れにまかせてみる。'}
+];
+const ACTIONS = [
+ ['小さな片づけ・断捨離','未完了タスクの完了','気持ちの整理整頓'],
+ ['新しい事のスタート','行動範囲を広げること','迷いを手放す決断'],
+ ['予定を詰め込まないこと','しっかり休息をとること','セルフケアの時間'],
+ ['ひらめきのメモ書き','直感を信じる選択','気になることへの一歩'],
+ ['感謝の言葉を伝えること','大切な人との時間','人間関係の見直し'],
+ ['不要な物の処分','心のデトックス','過去の整理・区切り'],
+ ['新しい学びの種まき','計画の下準備','小さな一歩を踏み出すこと'],
+ ['コツコツ継続すること','目の前の作業に集中','習慣づくりの一歩'],
+ ['自分の気持ちの表現','発信・アウトプット','自分らしい選択'],
+ ['流れに身をまかせること','人からの厚意を受け取ること','無理にコントロールしないこと']
+];
+const WORK = ['新しく増やすより、ひとつ終わらせることを意識して。中途半端になっている作業を仕上げると、頭がすっきりします。','気になっていた新しい挑戦に、思い切って手をつけてみて。最初の一歩が、流れを変えます。','根を詰めすぎず、ペースを落として大丈夫。休むことも仕事のうちです。','会議や作業の合間に浮かんだアイデアは、忘れずメモを。あとで宝物になります。','一人で抱え込まず、周りに声をかけてみて。協力が、思わぬ形で助けになります。','使っていない資料やデータの整理を。身の回りが整うと、集中力も上がります。','大きな計画より、今できる小さな準備を。焦らず種まきの時期と捉えて。','地味な作業ほど、丁寧に。今日の積み重ねが、あとで効いてきます。','自分の意見をはっきり伝えてOK。遠慮しすぎると、チャンスを逃すかも。','無理にコントロールしようとせず、流れに任せてみて。案外スムーズに進みます。'];
+const HUMAN = ['捨てるまでしなくてOK。気になっている未完了のやりとりを、1つだけ片付けよう。','気になっている人に、自分から連絡してみて。行動が新しい関係を生みます。','誘いを断っても大丈夫な日。無理に付き合わず、自分のペースを優先して。','会話の中でふと感じた違和感は、大事なサイン。直感を信じてみて。','「ありがとう」を伝えたい人に、今日こそ言葉にしてみて。','距離を置きたい関係は、そっとフェードアウトしてもいい日。','新しい出会いの種をまくとき。挨拶や自己紹介を丁寧に。','派手なやりとりより、地道な信頼づくりを大切に。','自分の気持ちを素直に言葉にしてみて。伝わらないと諦めないで。','相手のペースに合わせてみると、関係がスムーズに進みます。'];
+const HEALTH = ['「あれもこれも終わらせなきゃ」にすると逆効果。完了は1つで合格です。','新しい運動や習慣を始めるにはいいタイミング。無理のない範囲で。','疲れを感じたら、迷わず休んで。今日は充電を優先していい日です。','体の違和感は、我慢せずケアしてあげて。直感を大事に。','誰かと一緒に体を動かすと、いつも以上にリフレッシュできそう。','湯船にゆっくり浸かるなど、心と体をリセットする時間を。','睡眠や食事など、基本的な生活リズムを整えることを意識して。','無理なダイエットや詰め込みすぎはNG。コツコツ続けられることを。','自分の体調について、我慢せず素直に周りに伝えて。','体の声に耳を傾けて、今日は流れに逆らわず過ごして。'];
+const MONEY = ['仕入れや買い物を増やすより、持ち物の整理・価格の見直しを。売り切る工夫に時間を使うのが吉。','気になっていた新しい収入源やチャレンジに手をつけてみるとき。','大きな出費は控えめに。今日は無理に動かさず様子見でOK。','「なんとなく気になる」買い物や投資は、直感を信じてみてもいいかも。','誰かと一緒にお金の相談をすると、いいアイデアが浮かびそう。','使っていないサブスクや不要なものの解約・整理にいい日。','すぐに結果を求めず、コツコツ貯める・積み立てる意識を。','地道な記録や家計管理が、後で大きな安心につながります。','欲しいものは遠慮せずリストアップしてOK。焦らず計画を。','流れに任せて、無理な節約や我慢はしなくて大丈夫です。'];
+const COLORS = [
+ {name:'ピンク', hex:'#FF6FA1', mean:'やさしさ・愛・サポート運アップ'},
+ {name:'オレンジ', hex:'#FFA55C', mean:'元気・行動力アップ'},
+ {name:'イエロー', hex:'#FFD35C', mean:'楽しさ・社交運アップ'},
+ {name:'グリーン', hex:'#5FBE8B', mean:'癒し・バランスを整える'},
+ {name:'ミント', hex:'#5FD8BE', mean:'リフレッシュ・浄化'},
+ {name:'ブルー', hex:'#5FA9D8', mean:'冷静さ・コミュニケーション運'},
+ {name:'ラベンダー', hex:'#A896E0', mean:'直感・スピリチュアル運アップ'},
+ {name:'ホワイト', hex:'#F1EDEA', mean:'リセット・浄化のカラー'},
+ {name:'ゴールド', hex:'#E0A94D', mean:'金運・豊かさを引き寄せる'},
+ {name:'コーラル', hex:'#FF8A78', mean:'情熱・行動運アップ'}
+];
+const KAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const KAN_YOMI = ['きのえ','きのと','ひのえ','ひのと','つちのえ','つちのと','かのえ','かのと','みずのえ','みずのと'];
+const SHI_YOMI = ['ね','うし','とら','う','たつ','み','うま','ひつじ','さる','とり','いぬ','い'];
+const SHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const ROKUYO = ['先勝','友引','先負','仏滅','大安','赤口'];
+function dayCount(date){ return Math.floor(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())/86400000); }
+// 干支(六十干支)の正式計算: 1873年1月12日=甲子(0-based index0)を基準に検証済みのオフセット(+17)を使用
+function kanshiIndex(date){ return ((dayCount(date) + 17) % 60 + 60) % 60; }
+// 大明日となる干支(25干支説, 0-based index)
+const DAIMYOUNICHI_INDICES = [5,6,7,8,9,13,15,18,20,23,28,31,38,40,41,42,43,45,46,47,52,54,55,56,57];
+function isDaimyounichi(kIdx){ return DAIMYOUNICHI_INDICES.includes(kIdx); }
+
+/* ===== 干支・大明日の解説 ===== */
+const KAN_TRAIT = [
+ '大樹のように、まっすぐ伸びていく成長・スタートの気',
+ '草花のように、しなやかに広がる柔軟・調整の気',
+ '太陽のように、周りを照らす情熱・拡大の気',
+ '灯火のように、ゆっくり燃え続ける丁寧・継続の気',
+ '山のように、どっしり構える安定・包容の気',
+ '田畑のように、実りを育む堅実・地道の気',
+ '刃物のように、鋭く仕上げる区切り・引き締めの気',
+ '宝石のように、磨かれ輝く洗練・完成の気',
+ '大河のように、大きく流れていく行動・変化の気',
+ '雨露のように、静かに浸透する浄化・準備の気'
+];
+const SHI_TRAIT = [
+ '物事がスタートする、種のようなエネルギー',
+ '力を内側に溜め込む、粘り強いエネルギー',
+ '芽が地表に飛び出す、勢いのあるエネルギー',
+ '花がぱっと開く、しなやかで社交的なエネルギー',
+ '雲が集まり形になっていく、発展のエネルギー',
+ '陽の気がまとまっていく、知的で鋭いエネルギー',
+ '陽の気がピークに達する、活発で情熱的なエネルギー',
+ '実りを味わう、穏やかで思いやりのあるエネルギー',
+ '変化を仕掛ける、器用で機転のきくエネルギー',
+ '実を収穫する、成果を形にするエネルギー',
+ '土に還す、締めくくり・浄化のエネルギー',
+ '次の芽吹きに備える、静かな充電のエネルギー'
+];
+const ASTRO_NOTE = '<div style="font-size:11px;color:var(--sub);margin-top:12px;">※伝統的な暦(陰陽道)の考え方に基づく意味づけで、科学的な根拠があるものではありません。占いとして楽しんでくださいね。</div>';
+function personalBlock(html){
+  return '<div style="margin-top:14px; padding-top:14px; border-top:1px dashed var(--line);">'+
+    '<b style="color:var(--pink-deep);">'+ic('heartOutline','width:12px;height:12px;color:var(--pink);')+' あなたの場合は</b><br>'+html+'</div>';
+}
+function kanshiExplain(kIdx){
+  const kanI = kIdx%10, shiI = kIdx%12;
+  const kanji = KAN[kanI]+SHI[shiI];
+  const yomi = KAN_YOMI[kanI]+SHI_YOMI[shiI];
+  let body = '<b style="color:var(--pink-deep);">一般的にはどんな日？</b><br>'+
+    '「'+KAN[kanI]+'('+KAN_YOMI[kanI]+')」は、'+KAN_TRAIT[kanI]+'。<br><br>'+
+    '「'+SHI[shiI]+'('+SHI_YOMI[shiI]+')」は、'+SHI_TRAIT[shiI]+'。<br><br>'+
+    kanji+'の日は、この2つのエネルギーが組み合わさった一日と言われています。';
+  const ctx = window._todayCtx;
+  if(ctx){
+    body += personalBlock(
+      ctx.personName+'さんの強みは「'+ctx.lifePathMeaning+'」。今日の'+kanji+'のエネルギーと重ねると、'+
+      'その強みを「'+KAN_TRAIT[kanI]+'」ように発揮しやすい日と読めそうです。<br><br>'+
+      'また九星気学では'+ctx.starName+'生まれの'+ctx.personalDay+'デイなので、'+ctx.starTrait+'を、今日は少し意識してみるとよさそうです。'
+    );
+  }
+  body += ASTRO_NOTE;
+  return { title: kanji+'（'+yomi+'）', body };
+}
+function daimyouExplain(){
+  let body = '<b style="color:var(--pink-deep);">一般的にはどんな日？</b><br>'+
+    '「天と地の道が開いて、世の中の隅々まで太陽の光で照らされる」とされる大吉日です。<br><br>'+
+    '六曜の大安とは別の、暦注(れきちゅう)という古くからの吉日の仕組みのひとつで、特に結婚・入籍・旅行・引っ越しなど「新しいスタート」との相性がいいとされています。<br><br>'+
+    '大明日は月に何度も巡ってくる、わりと頻度の高い吉日です。';
+  const ctx = window._todayCtx;
+  if(ctx){
+    body += personalBlock(
+      ctx.personName+'さんの強みである「'+ctx.lifePathMeaning+'」は、大明日の後押しでより発揮しやすくなりそうです。<br><br>'+
+      '九星気学の'+ctx.starName+'らしさ(『'+ctx.starTrait+'』)を活かす行動を、今日は特に選んでみるとよさそうです。'
+    );
+  }
+  body += ASTRO_NOTE;
+  return { title: '大明日（だいみょうにち）', body };
+}
+function moonPhase(date){
+  const synodic = 29.53058867;
+  const ref = Date.UTC(2000,0,6,18,14)/86400000;
+  let age = (dayCount(date) - ref) % synodic;
+  if(age<0) age += synodic;
+  if(age<1.85) return 'new';
+  if(age<5.55) return 'young';
+  if(age<9.25) return 'firstq';
+  if(age<12.95) return 'waxg';
+  if(age<16.65) return 'full';
+  if(age<20.35) return 'waning';
+  if(age<24.05) return 'lastq';
+  return 'old';
+}
+const MOON_NAME = {new:'新月',young:'三日月',firstq:'上弦の月',waxg:'十三夜月',full:'満月',waning:'十六夜月',lastq:'下弦の月',old:'晦(つごもり)'};
+
+/* ===== 描画 ===== */
+const dateObj = new Date();
+const dateKey = dateObj.getFullYear()+'-'+(dateObj.getMonth()+1)+'-'+dateObj.getDate();
+const WEEK = ['日','月','火','水','木','金','土'];
+
+function renderDrawer(){
+  const people = loadPeople();
+  const cur = getCurrentId();
+  const list = document.getElementById('drawerList');
+  list.innerHTML = '';
+  people.forEach(p=>{
+    const row = document.createElement('div');
+    row.className = 'drawer-person' + (p.id===cur ? ' active' : '');
+    row.innerHTML = '<span class="dn">'+ic('paw')+p.name+'</span><span class="de">編集</span>';
+    row.querySelector('.dn').onclick = ()=>{ setCurrentId(p.id); closeDrawer(); render(); };
+    row.querySelector('.de').onclick = (e)=>{ e.stopPropagation(); openModal(p); };
+    list.appendChild(row);
+  });
+}
+function openDrawer(){ renderDrawer(); document.getElementById('drawerBg').classList.add('show'); }
+function closeDrawer(){ document.getElementById('drawerBg').classList.remove('show'); }
+document.getElementById('menuBtn').onclick = openDrawer;
+document.getElementById('drawerBg').onclick = closeDrawer;
+document.getElementById('drawerAdd').onclick = ()=>{ closeDrawer(); openModal(); };
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=> t.classList.remove('show'), 1600);
+}
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const tab = btn.dataset.tab;
+    if(tab==='settings'){ openModal(); return; }
+    if(tab==='fav'){ showToast('この機能は準備中です'); return; }
+    if(tab==='dog'){
+      const people = loadPeople();
+      if(people.length===0){ showToast('先に占う人を登録してください'); return; }
+      document.getElementById('avatarInput').click();
+      return;
+    }
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentView = (tab==='calendar') ? 'calendar' : 'home';
+    render();
+  });
+});
+document.getElementById('avatarInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const cur = getCurrentId();
+  if(cur) handleAvatarFile(file, cur);
+  e.target.value = '';
+});
+
+let currentView = 'home';
+function render(){
+  const people = loadPeople();
+  const content = document.getElementById('content');
+  if(people.length===0){
+    document.getElementById('brandTitle').textContent = '占い暦';
+    renderAvatar(null);
+    content.innerHTML = '<div class="empty-state"><div class="em">'+ic('dog','width:70px;height:70px;')+'</div>'+
+      '<h2>まずは占う人を登録しよう</h2>'+
+      '<p>左上のメニューから、名前と生年月日を<br>登録すると毎日の占いが見られます。</p></div>';
+    return;
+  }
+  let cur = getCurrentId();
+  if(!people.find(p=>p.id===cur)){ cur = people[0].id; setCurrentId(cur); }
+  const person = people.find(p=>p.id===cur);
+  document.getElementById('brandTitle').textContent = person.name + '暦';
+  renderAvatar(person.id);
+
+  if(currentView==='calendar'){ renderCalendarView(person); return; }
+  renderHomeView(person);
+}
+
+function renderHomeView(person){
+  const content = document.getElementById('content');
+  const seedStr = person.name + '_' + person.birth + '_' + dateKey;
+  const rng = hashStr(seedStr);
+  const t = seededPick(rng, THEMES);
+  const tIdx = THEMES.indexOf(t);
+  const bullets = ACTIONS[tIdx];
+  const work = seededPick(rng, WORK);
+  const human = seededPick(rng, HUMAN);
+  const health = seededPick(rng, HEALTH);
+  const money = seededPick(rng, MONEY);
+  const color = seededPick(rng, COLORS);
+
+  const num = calcNumerology(person.birth, dateObj);
+  const birthMaya = mayaFromKin(calcKin(person.birth));
+  const todayMaya = mayaFromKin(calcKin(dateObj));
+  const starNum = calcNineStar(person.birth);
+  const starName = NINE_STAR_NAMES[starNum-1];
+  const dc = dayCount(dateObj);
+  const kIdx = kanshiIndex(dateObj);
+  const kanshi = KAN[kIdx%10] + SHI[kIdx%12];
+  const kanshiYomi = KAN_YOMI[kIdx%10] + SHI_YOMI[kIdx%12];
+  const daimyou = isDaimyounichi(kIdx);
+  const rokuyo = ROKUYO[((dc%6)+6)%6];
+  const moonKey = moonPhase(dateObj);
+  const moonName = MOON_NAME[moonKey];
+
+  window._todayCtx = {
+    personName: person.name,
+    lifePath: num.lifePath,
+    lifePathMeaning: LIFEPATH_MEANING[num.lifePath],
+    personalDay: num.personalDay,
+    starName: starName,
+    starTrait: NINE_STAR_TRAIT[starNum]
+  };
+
+  const overall = `今日のテーマは「${t.theme}」。${t.desc}\n`+
+    `${person.name}さんの数秘術的な強みは「${LIFEPATH_MEANING[num.lifePath]}」。ここを意識すると流れに乗りやすい日です。\n`+
+    `九星気学では${starName}生まれの${person.name}さんは、もともと${NINE_STAR_TRAIT[starNum]}。\n`+
+    `マヤ暦では今日「${todayMaya.seal.trait}」のエネルギーが流れているので、${todayMaya.tone.trait}を意識してみて。\n`+
+    `ラッキーカラーの${color.name}を身につけると、${color.mean}のひと押しになりそうです。`;
+
+  content.innerHTML = `
+    <div class="hero-advice">
+      <span class="heart-deco op1">♡</span>
+      <div class="hero-date">${dateObj.getMonth()+1}/${dateObj.getDate()}(${WEEK[dateObj.getDay()]}) ${person.name}さんへの今日の全体アドバイス</div>
+      <div class="hero-headline">${t.theme}</div>
+      <ul class="hero-bullets">
+        <li>${ic('clover','width:14px;height:14px;')}${bullets[0]}</li>
+        <li>${ic('clover','width:14px;height:14px;')}${bullets[1]}</li>
+        <li>${ic('clover','width:14px;height:14px;')}${bullets[2]}</li>
+      </ul>
+      <div class="hero-sub">${overall.replace(/\n/g,'<br><br>')}</div>
+      <span class="heart-deco op2">♡</span>
+    </div>
+
+    <div class="divider-heart">${ic('heartOutline')}</div>
+
+    <div class="grid2">
+      <div class="card">
+        <span class="badge">Today</span>
+        <div class="today-date">${dateObj.getMonth()+1}/${dateObj.getDate()}<span>(${WEEK[dateObj.getDay()]})</span></div>
+        <div class="today-line"><span>${t.line}</span>${ic('paw','width:16px;height:16px;color:var(--pink);')}</div>
+      </div>
+      <div class="card">
+        <span class="badge">今日の暦</span>
+        <div class="mini-badges">
+          <span class="mb tap-link" onclick="showKanshiInfo(${kIdx})">干支 ${kanshi}（${kanshiYomi}）</span>
+          <span class="mb">六曜(簡易) ${rokuyo}</span>
+          <span class="mb">${ic('moon','width:12px;height:12px;color:var(--purple);')}${moonName}</span>
+          ${daimyou ? '<span class="mb daimyou tap-link" onclick="showDaimyouInfo()">'+ic('sparkle','width:11px;height:11px;')+'大明日</span>' : ''}
+        </div>
+        <div class="keyword-box">
+          <div class="label">${ic('clover','width:14px;height:14px;color:var(--green);')}今日のキーワード</div>
+          <div class="kw">${t.kw}<span class="kw-heart">♡</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        ${ic('heartMark','position:absolute; top:10px; right:10px; width:16px; height:24px; color:var(--pink); opacity:.35;')}
+        <span class="badge">数秘術</span>
+        <div class="lifepath-row"><span class="num">${num.lifePath}</span><span class="lab">ライフパス</span><span class="lp-heart">♡</span></div>
+        <div class="numero-grid">
+          <div class="box"><div class="n">${num.personalYear}</div><div class="l">イヤー</div></div>
+          <div class="box"><div class="n">${num.personalMonth}</div><div class="l">マンス</div></div>
+          <div class="box"><div class="n">${num.personalDay}</div><div class="l">デイ</div></div>
+        </div>
+        <div class="meaning"><b>あなたの強み♡</b><br>${LIFEPATH_MEANING[num.lifePath]}</div>
+        <div style="font-size:11.5px; color:var(--sub); margin-top:8px;">本命星(九星気学簡易)：<b style="color:var(--pink-deep);">${starName}</b></div>
+      </div>
+      <div class="card" style="overflow:visible;">
+        ${avatarSmallHTML(person.id, 58)}
+        <span class="badge">今日のテーマ</span>
+        <div style="font-size:15px; font-weight:800; color:var(--pink-deep); line-height:1.4; margin-bottom:6px;">${t.theme}</div>
+        <div style="font-size:12px; line-height:1.6; color:var(--text);">${t.desc}</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">${ic('sparkle','color:var(--purple);')}マヤ暦でみる${person.name}さん</h2>
+    <div class="grid2">
+      <div class="card">
+        <span class="badge" style="background:var(--purple);">誕生KIN</span>
+        <div class="lifepath-row"><span class="num" style="color:var(--purple);">${birthMaya.kin}</span><span class="lab">KIN</span></div>
+        <div style="font-size:13.5px; font-weight:800; color:var(--purple); margin-top:4px;">${birthMaya.seal.name}・${birthMaya.tone.name}</div>
+        <div class="meaning" style="background:var(--purple-bg);"><b style="color:var(--purple);">紋章の意味</b><br>${birthMaya.seal.trait}／${birthMaya.tone.trait}</div>
+      </div>
+      <div class="card">
+        <span class="badge" style="background:var(--purple);">今日のKIN</span>
+        <div class="lifepath-row"><span class="num" style="color:var(--purple);">${todayMaya.kin}</span><span class="lab">KIN</span></div>
+        <div style="font-size:13.5px; font-weight:800; color:var(--purple); margin-top:4px;">${todayMaya.seal.name}・${todayMaya.tone.name}</div>
+        <div style="font-size:12px; line-height:1.6; color:var(--text); margin-top:8px;">今日は「${todayMaya.seal.trait}」の日。<br>${todayMaya.tone.trait}を意識してみて。</div>
+      </div>
+    </div>
+    <div class="disclaimer" style="margin:-4px 8px 4px;">※マヤ暦(ツォルキン暦)は1987年8月16日を起点とした、九星気学は立春を2/4固定としたオリジナル簡易計算です。流派・サイトによって解釈が異なる場合があります。</div>
+
+    <div class="theme-grid">
+      <div class="tcard work"><div class="th">${ic('briefcase')}仕事・学び</div>${work}</div>
+      <div class="tcard human"><div class="th">${ic('handshake')}対人</div>${human}</div>
+      <div class="tcard health"><div class="th">${ic('leaf')}健康・休むサイン</div>${health}</div>
+      <div class="tcard money"><div class="th">${ic('moneybag')}お金</div>${money}</div>
+    </div>
+
+    <div class="divider-heart">${ic('heartOutline')}</div>
+
+    <h2 class="section-title">${ic('sparkle','color:var(--gold);')}今日のラッキーカラー</h2>
+    <div class="card">
+      ${ic('heartMark','position:absolute; top:12px; right:14px; width:14px; height:21px; color:var(--pink); opacity:.3;')}
+      <div class="color-row">
+        <div class="swatch" style="background:${color.hex};"></div>
+        <div><div class="cname">${color.name}</div><div class="cmean">${color.mean}</div></div>
+        <span class="lp-heart" style="margin-left:auto;">♡</span>
+      </div>
+    </div>
+
+    <h2 class="section-title">${ic('paw','color:var(--pink-deep);')}今日の暦</h2>
+    <div class="card" style="overflow:visible;">
+      ${avatarSmallHTML(person.id, 58)}
+      <table class="calendar-table">
+        <tr><td class="lab">干支</td><td class="val"><span class="tap-link" onclick="showKanshiInfo(${kIdx})">${kanshi}（${kanshiYomi}）</span></td></tr>
+        <tr><td class="lab">大明日</td><td class="val"><span class="tap-link" onclick="showDaimyouInfo()">${daimyou ? '該当します✨' : '該当しません'}</span></td></tr>
+        <tr><td class="lab">六曜(簡易)</td><td class="val">${rokuyo}</td></tr>
+        <tr><td class="lab">月相</td><td class="val">${ic('moon','width:14px;height:14px;color:var(--purple);')}${moonName}</td></tr>
+      </table>
+      <div class="auto-note">この端末の日付に合わせて自動更新します</div>
+      <div class="disclaimer">※干支・大明日はユリウス日をもとにした暦計算式で算出しています。六曜は本来旧暦が必要なため、こちらは引き続きアプリ内の簡易計算による目安です。占いは楽しみながら参考にしてくださいね。</div>
+    </div>
+  `;
+}
+
+function fmtDateKey(d){ return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+
+function renderCalendarView(person){
+  const content = document.getElementById('content');
+  let rows = '';
+  for(let i=0;i<14;i++){
+    const d = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()+i);
+    const dk = fmtDateKey(d);
+    const seedStr = person.name + '_' + person.birth + '_' + dk;
+    const rng = hashStr(seedStr);
+    const t = seededPick(rng, THEMES);
+    const isToday = i===0;
+    rows += `
+      <div class="cal-row${isToday ? ' today':''}">
+        <div class="cal-date">
+          <div class="cd-md">${d.getMonth()+1}/${d.getDate()}</div>
+          <div class="cd-wd">(${WEEK[d.getDay()]})</div>
+        </div>
+        <div class="cal-body">
+          <div class="cal-kw">${t.kw}</div>
+          <div class="cal-line">${t.line}</div>
+        </div>
+        ${isToday ? '<span class="cal-today-tag">Today</span>' : ''}
+      </div>`;
+  }
+  content.innerHTML = `
+    <h2 class="section-title">${ic('calendar','color:var(--pink-deep);')}${person.name}さんの2週間占い</h2>
+    <div class="card" style="padding:8px 12px;">
+      ${rows}
+    </div>
+    <div class="disclaimer" style="margin:2px 8px 0;">※先の日付ほど簡易的な内容です。当日になると、より詳しいページ(今日の暦)が見られます。</div>
+  `;
+}
+
+function renderAvatar(personId){
+  const box = document.getElementById('avatarBox');
+  const img = personId ? localStorage.getItem('uranai_avatar_'+personId) : null;
+  if(img){
+    box.innerHTML = '<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;">';
+  } else {
+    box.innerHTML = ic('dog','width:52px;height:52px;');
+  }
+}
+
+function avatarSmallHTML(personId, size){
+  const img = personId ? localStorage.getItem('uranai_avatar_'+personId) : null;
+  const inner = img
+    ? '<img src="'+img+'" style="width:100%;height:100%;object-fit:cover;">'
+    : ic('dog','width:'+Math.round(size*0.78)+'px;height:'+Math.round(size*0.78)+'px;');
+  return '<div class="mascot-peek" style="width:'+size+'px;height:'+size+'px;">'+inner+'</div>';
+}
+
+function handleAvatarFile(file, personId){
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const size = 240;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const side = Math.min(img.width, img.height);
+      const sx = (img.width - side)/2, sy = (img.height - side)/2;
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+      try{
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        localStorage.setItem('uranai_avatar_'+personId, dataUrl);
+        renderAvatar(personId);
+        showToast('わんこの写真を登録しました');
+      }catch(err){
+        showToast('画像の保存に失敗しました');
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ===== モーダル(人の追加・編集) ===== */
+let editingId = null;
+function openModal(person){
+  editingId = person ? person.id : null;
+  document.getElementById('modalTitle').textContent = person ? ('「'+person.name+'」を編集') : '占う人を追加';
+  document.getElementById('inName').value = person ? person.name : '';
+  document.getElementById('inBirth').value = person ? person.birth : '';
+  document.getElementById('deleteRow').style.display = person ? 'flex' : 'none';
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeModal(){ document.getElementById('modalBg').classList.remove('show'); }
+document.getElementById('btnCancel').onclick = closeModal;
+function openInfoModal(title, bodyHtml){
+  document.getElementById('infoModalTitle').textContent = title;
+  document.getElementById('infoModalBody').innerHTML = bodyHtml;
+  document.getElementById('infoModalBg').classList.add('show');
+}
+function closeInfoModal(){ document.getElementById('infoModalBg').classList.remove('show'); }
+document.getElementById('infoModalClose').onclick = closeInfoModal;
+document.getElementById('infoModalBg').onclick = (e)=>{ if(e.target.id==='infoModalBg') closeInfoModal(); };
+function showKanshiInfo(kIdx){ const info = kanshiExplain(kIdx); openInfoModal(info.title, info.body); }
+function showDaimyouInfo(){ const info = daimyouExplain(); openInfoModal(info.title, info.body); }
+document.getElementById('modalBg').onclick = (e)=>{ if(e.target.id==='modalBg') closeModal(); };
+document.getElementById('btnSave').onclick = ()=>{
+  const name = document.getElementById('inName').value.trim();
+  const birth = document.getElementById('inBirth').value;
+  if(!name || !birth){ alert('お名前と生年月日を入力してください'); return; }
+  let people = loadPeople();
+  if(editingId){
+    people = people.map(p=> p.id===editingId ? {...p, name, birth} : p);
+  } else {
+    const id = 'p_' + Date.now();
+    people.push({id, name, birth});
+    setCurrentId(id);
+  }
+  savePeople(people);
+  closeModal();
+  render();
+};
+document.getElementById('btnDelete').onclick = ()=>{
+  if(!confirm('この人を削除します。よろしいですか？')) return;
+  let people = loadPeople().filter(p=>p.id!==editingId);
+  savePeople(people);
+  if(getCurrentId()===editingId && people.length){ setCurrentId(people[0].id); }
+  closeModal();
+  render();
+};
+
+render();
+</script>
+</body>
+</html>
