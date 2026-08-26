@@ -11,19 +11,19 @@
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --pink:#FF6FA1; --pink-deep:#E8558A; --pink-pale:#FFF3F7; --bg:#FFEAF1;
+    --pink:#FF6FA1; --pink-rgb:255,111,161; --pink-deep:#E8558A; --pink-pale:#FFF3F7; --bg:#FFEAF1;
     --card:#FFFFFF; --purple:#8B7BD8; --purple-bg:#F1EEFC;
     --blue:#5FA9D8; --blue-bg:#EAF4FB; --green:#5FBE8B; --green-bg:#EBF9F1;
     --gold:#E0A94D; --gold-bg:#FBF3E4; --text:#4A3A42; --sub:#9C8790;
-    --line:#FBE0EA; --shadow: 0 4px 18px rgba(255,111,161,0.14);
+    --line:#FBE0EA; --shadow: 0 4px 18px rgba(var(--pink-rgb),0.14);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0; padding:0;}
   body{
-    background-color:#FFF6F9;
+    background-color:var(--bg);
     background-image:
-      repeating-linear-gradient(0deg, rgba(232,85,138,.16) 0 12px, transparent 12px 26px),
-      repeating-linear-gradient(90deg, rgba(232,85,138,.16) 0 12px, transparent 12px 26px);
+      repeating-linear-gradient(0deg, rgba(var(--pink-rgb),.16) 0 12px, transparent 12px 26px),
+      repeating-linear-gradient(90deg, rgba(var(--pink-rgb),.16) 0 12px, transparent 12px 26px);
     background-blend-mode:multiply;
     color:var(--text); font-family:'M PLUS Rounded 1c','Hiragino Maru Gothic ProN','Yu Gothic',sans-serif;
     padding-bottom:92px;
@@ -102,7 +102,7 @@
   .mini-badges .mb .ic-wrap{width:12px; height:12px;}
   .mini-badges .mb.daimyou{background:linear-gradient(135deg,var(--gold),var(--pink)); color:#fff;}
   .tap-link{border-bottom:1.5px dotted currentColor; cursor:pointer;}
-  .keyword-box{background:var(--pink-pale); border-radius:18px; padding:16px; text-align:center; border:1px solid #FBD4E4;}
+  .keyword-box{background:var(--pink-pale); border-radius:18px; padding:16px; text-align:center; border:1px solid var(--line);}
   .keyword-box .label{font-size:11.5px; color:var(--pink-deep); font-weight:800; margin-bottom:6px; display:flex; align-items:center; justify-content:center; gap:5px;}
   .keyword-box .label .ic-wrap{width:14px; height:14px; color:var(--green);}
   .keyword-box .kw{font-size:20px; font-weight:800; color:var(--pink-deep); letter-spacing:.5px;}
@@ -179,6 +179,11 @@
   .gt-badges{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
   .gt-bullets li{background:var(--pink-pale); color:var(--pink-deep);}
   .gt-bullets .ic-wrap{color:var(--green);}
+  .navgrad-a{stop-color:var(--pink);} .navgrad-b{stop-color:var(--pink-deep);}
+  .theme-swatches{display:flex; gap:12px; flex-wrap:wrap; margin:10px 0 4px;}
+  .theme-swatch{width:42px; height:42px; border-radius:50%; cursor:pointer; border:3px solid transparent; box-shadow:0 2px 6px rgba(0,0,0,.12); position:relative;}
+  .theme-swatch.active{border-color:var(--text);}
+  .theme-swatch.active::after{content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:800; text-shadow:0 1px 2px rgba(0,0,0,.3);}
 
   .divider-heart{display:flex; align-items:center; gap:8px; margin:20px 6px;}
   .divider-heart::before, .divider-heart::after{content:''; flex:1; height:0; border-top:2px dashed var(--pink); opacity:.45;}
@@ -281,8 +286,8 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <linearGradient id="navGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#FFA0C6"/>
-      <stop offset="1" stop-color="#E8558A"/>
+      <stop offset="0" class="navgrad-a"/>
+      <stop offset="1" class="navgrad-b"/>
     </linearGradient>
   </defs>
 </svg>
@@ -348,6 +353,20 @@
   </div>
 </div>
 
+<div class="modal-bg" id="settingsModalBg">
+  <div class="modal">
+    <h3>設定</h3>
+    <label>テーマカラー</label>
+    <div id="themeSwatches" class="theme-swatches"></div>
+    <div class="btn-row">
+      <button class="btn ghost" id="btnManagePeople">占う人を追加・編集する</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" id="settingsModalClose">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ===== アイコン(SVG。絵文字フォントに依存しないよう全てSVGで用意) ===== */
 const ICONS = {
@@ -366,10 +385,10 @@ const ICONS = {
   moon:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5z"/></svg>',
   sparkle:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>',
   dog:'<svg viewBox="0 0 40 40"><ellipse cx="5.5" cy="23" rx="4.4" ry="6.4" fill="#EAE0DA"/><ellipse cx="34.5" cy="23" rx="4.4" ry="6.4" fill="#EAE0DA"/><circle cx="7" cy="10" r="5.6" fill="#EAE0DA"/><circle cx="13.5" cy="5.5" r="5.8" fill="#EAE0DA"/><circle cx="20" cy="4" r="5.8" fill="#EAE0DA"/><circle cx="26.5" cy="5.5" r="5.8" fill="#EAE0DA"/><circle cx="33" cy="10" r="5.6" fill="#EAE0DA"/><circle cx="9" cy="16" r="5" fill="#EAE0DA"/><circle cx="31" cy="16" r="5" fill="#EAE0DA"/><circle cx="20" cy="24" r="12.5" fill="#F4EEEA"/><ellipse cx="14.5" cy="27" rx="2.6" ry="1.7" fill="#FCC9DA" opacity="0.7"/><ellipse cx="25.5" cy="27" rx="2.6" ry="1.7" fill="#FCC9DA" opacity="0.7"/><circle cx="15" cy="23" r="1.8" fill="#4A3A42"/><circle cx="25" cy="23" r="1.8" fill="#4A3A42"/><ellipse cx="20" cy="28" rx="2.3" ry="1.7" fill="#4A3A42"/><path d="M14 34c2.5 1.6 9.5 1.6 12 0" stroke="#E8558A" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M18.3 35.6l1.7 1.7 1.7-1.7c.9-.9.9-2.2 0-2.9-.7-.6-1.6-.4-2 .2l-.1.1-.1-.1c-.4-.6-1.3-.8-2-.2-.9.7-.9 2 0 2.9z" fill="#E8558A"/></svg>',
-  navHome:'<svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5v7.5a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1" stroke-linejoin="round"/></svg>',
-  navCalendar:'<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1"/><rect x="3" y="4.5" width="18" height="5" rx="3" fill="#fff" opacity=".35"/><circle cx="8" cy="8" r="1.2" fill="#fff"/><circle cx="16" cy="8" r="1.2" fill="#fff"/><circle cx="8" cy="14" r="1" fill="#fff"/><circle cx="12" cy="14" r="1" fill="#fff"/><circle cx="16" cy="14" r="1" fill="#fff"/></svg>',
-  navHeart:'<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.1C.6 8.6 2.2 5 5.8 5c2 0 3.4 1.1 4.2 2.4C10.8 6.1 12.2 5 14.2 5c3.6 0 5.2 3.6 3.8 6.9C19.5 16.4 12 21 12 21z" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1"/><ellipse cx="8.3" cy="8.3" rx="1.6" ry="1" fill="#fff" opacity=".55" transform="rotate(-30 8.3 8.3)"/></svg>',
-  navGear:'<svg viewBox="0 0 24 24"><path d="M19.4 13a7.9 7.9 0 0 0 0-2l2-1.5-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3h-4l-.4 2.1a8 8 0 0 0-1.7 1l-2.4-1-2 3.4L6.5 11a7.9 7.9 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 1.7 1L11 21h4l.4-2.1a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2.1-1.5z" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="#fff"/></svg>',
+  navHome:'<svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5v7.5a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z" fill="url(#navGrad)" style="stroke:var(--pink-deep)" stroke-width="1" stroke-linejoin="round"/></svg>',
+  navCalendar:'<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3" fill="url(#navGrad)" style="stroke:var(--pink-deep)" stroke-width="1"/><rect x="3" y="4.5" width="18" height="5" rx="3" fill="#fff" opacity=".35"/><circle cx="8" cy="8" r="1.2" fill="#fff"/><circle cx="16" cy="8" r="1.2" fill="#fff"/><circle cx="8" cy="14" r="1" fill="#fff"/><circle cx="12" cy="14" r="1" fill="#fff"/><circle cx="16" cy="14" r="1" fill="#fff"/></svg>',
+  navHeart:'<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.1C.6 8.6 2.2 5 5.8 5c2 0 3.4 1.1 4.2 2.4C10.8 6.1 12.2 5 14.2 5c3.6 0 5.2 3.6 3.8 6.9C19.5 16.4 12 21 12 21z" fill="url(#navGrad)" style="stroke:var(--pink-deep)" stroke-width="1"/><ellipse cx="8.3" cy="8.3" rx="1.6" ry="1" fill="#fff" opacity=".55" transform="rotate(-30 8.3 8.3)"/></svg>',
+  navGear:'<svg viewBox="0 0 24 24"><path d="M19.4 13a7.9 7.9 0 0 0 0-2l2-1.5-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3h-4l-.4 2.1a8 8 0 0 0-1.7 1l-2.4-1-2 3.4L6.5 11a7.9 7.9 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 1.7 1L11 21h4l.4-2.1a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2.1-1.5z" fill="url(#navGrad)" style="stroke:var(--pink-deep)" stroke-width="1" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="#fff"/></svg>',
   navDog:'<svg viewBox="0 0 24 24"><ellipse cx="6" cy="9" rx="3.4" ry="4.6" fill="#F0DEC0" transform="rotate(-20 6 9)"/><ellipse cx="18" cy="9" rx="3.4" ry="4.6" fill="#F0DEC0" transform="rotate(20 18 9)"/><circle cx="12" cy="12" r="7.2" fill="#F7E7CE" stroke="#D9A65C" stroke-width="1"/><circle cx="9.3" cy="11" r="1.1" fill="#4A3A42"/><circle cx="14.7" cy="11" r="1.1" fill="#4A3A42"/><ellipse cx="12" cy="14.2" rx="1.4" ry="1" fill="#4A3A42"/><path d="M8.5 18.5l3.5-2 3.5 2-1.2-2.6h-4.6z" fill="#E8558A"/><circle cx="12" cy="17" r="1" fill="#C94A78"/></svg>',
   heartMark:'<svg viewBox="0 0 60 90" fill="none"><line x1="10" y1="30" x2="18" y2="18" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><line x1="26" y1="14" x2="30" y2="4" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M30 82C10 68 4 52 4 40 4 28 14 20 24 20 28 20 30 22 30 26 30 22 32 20 36 20 46 20 56 28 56 40 56 52 50 68 30 82Z" fill="currentColor"/></svg>',
   heartOutline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-10-9.1C.6 8.6 2.2 5 5.8 5c2 0 3.4 1.1 4.2 2.4C10.8 6.1 12.2 5 14.2 5c3.6 0 5.2 3.6 3.8 6.9C19.5 16.4 12 21 12 21z"/></svg>'
@@ -387,10 +406,34 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
 /* ===== ストレージ ===== */
 const LS_PEOPLE = 'uranai_people';
 const LS_CURRENT = 'uranai_current';
+const LS_THEME = 'uranai_theme';
 function loadPeople(){ try{return JSON.parse(localStorage.getItem(LS_PEOPLE))||[];}catch(e){return [];} }
 function savePeople(list){ localStorage.setItem(LS_PEOPLE, JSON.stringify(list)); }
 function getCurrentId(){ return localStorage.getItem(LS_CURRENT); }
 function setCurrentId(id){ localStorage.setItem(LS_CURRENT, id); }
+
+/* ===== テーマカラー ===== */
+const THEME_PRESETS = [
+  {key:'pink',      name:'ピンク',     pink:'#FF6FA1', rgb:'255,111,161', deep:'#E8558A', pale:'#FFF3F7', line:'#FBE0EA', bg:'#FFEAF1'},
+  {key:'lavender',  name:'ラベンダー', pink:'#9B87D9', rgb:'155,135,217', deep:'#7A63C4', pale:'#F3F0FC', line:'#E3DBF7', bg:'#F1EDFC'},
+  {key:'mint',      name:'ミント',     pink:'#4FBE95', rgb:'79,190,149',  deep:'#3AA07C', pale:'#EAFAF3', line:'#D3F0E3', bg:'#E9F9F1'},
+  {key:'blue',      name:'ブルー',     pink:'#5FA9D8', rgb:'95,169,216',  deep:'#4489BE', pale:'#EAF4FB', line:'#D9EAF6', bg:'#E9F3FB'},
+  {key:'coral',     name:'コーラル',   pink:'#FF8A6B', rgb:'255,138,107', deep:'#E86A48', pale:'#FFF1EC', line:'#FFE1D6', bg:'#FFEDE6'},
+  {key:'yellow',    name:'イエロー',   pink:'#E8B23D', rgb:'232,178,61',  deep:'#C89325', pale:'#FFF8E8', line:'#F7E7C2', bg:'#FFF6E3'}
+];
+function loadThemeKey(){ return localStorage.getItem(LS_THEME) || 'pink'; }
+function saveThemeKey(key){ localStorage.setItem(LS_THEME, key); }
+function applyTheme(key){
+  const p = THEME_PRESETS.find(t=>t.key===key) || THEME_PRESETS[0];
+  const r = document.documentElement.style;
+  r.setProperty('--pink', p.pink);
+  r.setProperty('--pink-rgb', p.rgb);
+  r.setProperty('--pink-deep', p.deep);
+  r.setProperty('--pink-pale', p.pale);
+  r.setProperty('--line', p.line);
+  r.setProperty('--bg', p.bg);
+}
+applyTheme(loadThemeKey());
 
 /* ===== 乱数(日付+名前で固定される占い結果) ===== */
 function hashStr(str){
@@ -676,7 +719,7 @@ function showToast(msg){
 document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const tab = btn.dataset.tab;
-    if(tab==='settings'){ openModal(); return; }
+    if(tab==='settings'){ openSettingsModal(); return; }
     if(tab==='dog'){
       const people = loadPeople();
       if(people.length===0){ showToast('先に占う人を登録してください'); return; }
@@ -985,6 +1028,32 @@ function openModal(person){
 }
 function closeModal(){ document.getElementById('modalBg').classList.remove('show'); }
 document.getElementById('btnCancel').onclick = closeModal;
+
+function renderThemeSwatches(){
+  const wrap = document.getElementById('themeSwatches');
+  const cur = loadThemeKey();
+  wrap.innerHTML = '';
+  THEME_PRESETS.forEach(p=>{
+    const sw = document.createElement('div');
+    sw.className = 'theme-swatch' + (p.key===cur ? ' active' : '');
+    sw.style.background = p.pink;
+    sw.title = p.name;
+    sw.onclick = ()=>{
+      saveThemeKey(p.key);
+      applyTheme(p.key);
+      renderThemeSwatches();
+    };
+    wrap.appendChild(sw);
+  });
+}
+function openSettingsModal(){
+  renderThemeSwatches();
+  document.getElementById('settingsModalBg').classList.add('show');
+}
+function closeSettingsModal(){ document.getElementById('settingsModalBg').classList.remove('show'); }
+document.getElementById('settingsModalClose').onclick = closeSettingsModal;
+document.getElementById('settingsModalBg').onclick = (e)=>{ if(e.target.id==='settingsModalBg') closeSettingsModal(); };
+document.getElementById('btnManagePeople').onclick = ()=>{ closeSettingsModal(); openModal(); };
 function openInfoModal(title, bodyHtml){
   document.getElementById('infoModalTitle').textContent = title;
   document.getElementById('infoModalBody').innerHTML = bodyHtml;
