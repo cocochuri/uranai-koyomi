@@ -259,12 +259,10 @@
   .nav-btn:nth-child(1) .c2{width:7px; height:7px; background:var(--green); top:2px; right:-11px;}
   .nav-btn:nth-child(2) .c1{width:6px; height:6px; background:var(--pink); top:-7px; right:-8px;}
   .nav-btn:nth-child(2) .c2{width:5px; height:5px; background:var(--purple); bottom:0; left:-10px;}
-  .nav-btn:nth-child(3) .c1{width:8px; height:8px; background:var(--gold); top:-8px; right:-10px;}
-  .nav-btn:nth-child(3) .c2{width:5px; height:5px; background:var(--blue); bottom:1px; left:-9px;}
-  .nav-btn:nth-child(4) .c1{width:6px; height:6px; background:var(--purple); top:-6px; left:-9px;}
-  .nav-btn:nth-child(4) .c2{width:5px; height:5px; background:var(--pink); bottom:1px; right:-10px;}
-  .nav-btn:nth-child(5) .c1{width:7px; height:7px; background:var(--gold); top:-8px; left:-8px;}
-  .nav-btn:nth-child(5) .c2{width:5px; height:5px; background:var(--pink); bottom:0; right:-10px;}
+  .nav-btn:nth-child(3) .c1{width:6px; height:6px; background:var(--purple); top:-6px; left:-9px;}
+  .nav-btn:nth-child(3) .c2{width:5px; height:5px; background:var(--pink); bottom:1px; right:-10px;}
+  .nav-btn:nth-child(4) .c1{width:7px; height:7px; background:var(--gold); top:-8px; left:-8px;}
+  .nav-btn:nth-child(4) .c2{width:5px; height:5px; background:var(--pink); bottom:0; right:-10px;}
 
   .toast{
     position:fixed; left:50%; bottom:86px; transform:translateX(-50%) translateY(10px); background:var(--text);
@@ -310,7 +308,6 @@
 <nav class="bottom-nav">
   <button class="nav-btn active" data-tab="home" data-icon="navHome">今日の暦</button>
   <button class="nav-btn" data-tab="calendar" data-icon="navCalendar">カレンダー</button>
-  <button class="nav-btn" data-tab="fav" data-icon="navHeart">お気に入り</button>
   <button class="nav-btn" data-tab="dog" data-icon="navDog">わんこ</button>
   <button class="nav-btn" data-tab="settings" data-icon="navGear">設定</button>
 </nav>
@@ -680,7 +677,6 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
     const tab = btn.dataset.tab;
     if(tab==='settings'){ openModal(); return; }
-    if(tab==='fav'){ showToast('この機能は準備中です'); return; }
     if(tab==='dog'){
       const people = loadPeople();
       if(people.length===0){ showToast('先に占う人を登録してください'); return; }
