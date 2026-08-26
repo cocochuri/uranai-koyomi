@@ -11,19 +11,19 @@
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --pink:#FF6FA1; --pink-rgb:255,111,161; --pink-deep:#E8558A; --pink-pale:#FFF3F7; --bg:#FFEAF1;
+    --pink:#FF6FA1; --pink-deep:#E8558A; --pink-pale:#FFF3F7; --bg:#FFEAF1;
     --card:#FFFFFF; --purple:#8B7BD8; --purple-bg:#F1EEFC;
     --blue:#5FA9D8; --blue-bg:#EAF4FB; --green:#5FBE8B; --green-bg:#EBF9F1;
     --gold:#E0A94D; --gold-bg:#FBF3E4; --text:#4A3A42; --sub:#9C8790;
-    --line:#FBE0EA; --shadow: 0 4px 18px rgba(var(--pink-rgb),0.14);
+    --line:#FBE0EA; --shadow: 0 4px 18px rgba(255,111,161,0.14);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0; padding:0;}
   body{
-    background-color:var(--bg);
+    background-color:#FFF6F9;
     background-image:
-      repeating-linear-gradient(0deg, rgba(var(--pink-rgb),.16) 0 12px, transparent 12px 26px),
-      repeating-linear-gradient(90deg, rgba(var(--pink-rgb),.16) 0 12px, transparent 12px 26px);
+      repeating-linear-gradient(0deg, rgba(232,85,138,.16) 0 12px, transparent 12px 26px),
+      repeating-linear-gradient(90deg, rgba(232,85,138,.16) 0 12px, transparent 12px 26px);
     background-blend-mode:multiply;
     color:var(--text); font-family:'M PLUS Rounded 1c','Hiragino Maru Gothic ProN','Yu Gothic',sans-serif;
     padding-bottom:92px;
@@ -102,7 +102,7 @@
   .mini-badges .mb .ic-wrap{width:12px; height:12px;}
   .mini-badges .mb.daimyou{background:linear-gradient(135deg,var(--gold),var(--pink)); color:#fff;}
   .tap-link{border-bottom:1.5px dotted currentColor; cursor:pointer;}
-  .keyword-box{background:var(--pink-pale); border-radius:18px; padding:16px; text-align:center; border:1px solid var(--line);}
+  .keyword-box{background:var(--pink-pale); border-radius:18px; padding:16px; text-align:center; border:1px solid #FBD4E4;}
   .keyword-box .label{font-size:11.5px; color:var(--pink-deep); font-weight:800; margin-bottom:6px; display:flex; align-items:center; justify-content:center; gap:5px;}
   .keyword-box .label .ic-wrap{width:14px; height:14px; color:var(--green);}
   .keyword-box .kw{font-size:20px; font-weight:800; color:var(--pink-deep); letter-spacing:.5px;}
@@ -167,23 +167,6 @@
   }
   .hero-bullets .ic-wrap{color:#fff; flex:0 0 auto;}
   .hero-sub{font-size:12.5px; font-weight:500; line-height:1.85; text-align:left; opacity:.96;}
-
-  .general-today{
-    background:var(--card); border-radius:24px; padding:19px 18px; margin-bottom:6px;
-    box-shadow:var(--shadow); border:1.5px solid var(--line);
-  }
-  .gt-label{font-size:11px; font-weight:800; color:var(--gold); display:flex; align-items:center; gap:5px; margin-bottom:4px;}
-  .gt-date{font-size:11.5px; color:var(--sub); font-weight:700; margin-bottom:6px;}
-  .gt-headline{font-size:18px; font-weight:800; color:var(--pink-deep); line-height:1.4; margin-bottom:8px;}
-  .gt-desc{font-size:12.5px; color:var(--text); line-height:1.7; margin-bottom:12px;}
-  .gt-badges{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
-  .gt-bullets li{background:var(--pink-pale); color:var(--pink-deep);}
-  .gt-bullets .ic-wrap{color:var(--green);}
-  .navgrad-a{stop-color:var(--pink);} .navgrad-b{stop-color:var(--pink-deep);}
-  .theme-swatches{display:flex; gap:12px; flex-wrap:wrap; margin:10px 0 4px;}
-  .theme-swatch{width:42px; height:42px; border-radius:50%; cursor:pointer; border:3px solid transparent; box-shadow:0 2px 6px rgba(0,0,0,.12); position:relative;}
-  .theme-swatch.active{border-color:var(--text);}
-  .theme-swatch.active::after{content:'✓'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:800; text-shadow:0 1px 2px rgba(0,0,0,.3);}
 
   .divider-heart{display:flex; align-items:center; gap:8px; margin:20px 6px;}
   .divider-heart::before, .divider-heart::after{content:''; flex:1; height:0; border-top:2px dashed var(--pink); opacity:.45;}
@@ -264,10 +247,12 @@
   .nav-btn:nth-child(1) .c2{width:7px; height:7px; background:var(--green); top:2px; right:-11px;}
   .nav-btn:nth-child(2) .c1{width:6px; height:6px; background:var(--pink); top:-7px; right:-8px;}
   .nav-btn:nth-child(2) .c2{width:5px; height:5px; background:var(--purple); bottom:0; left:-10px;}
-  .nav-btn:nth-child(3) .c1{width:6px; height:6px; background:var(--purple); top:-6px; left:-9px;}
-  .nav-btn:nth-child(3) .c2{width:5px; height:5px; background:var(--pink); bottom:1px; right:-10px;}
-  .nav-btn:nth-child(4) .c1{width:7px; height:7px; background:var(--gold); top:-8px; left:-8px;}
-  .nav-btn:nth-child(4) .c2{width:5px; height:5px; background:var(--pink); bottom:0; right:-10px;}
+  .nav-btn:nth-child(3) .c1{width:8px; height:8px; background:var(--gold); top:-8px; right:-10px;}
+  .nav-btn:nth-child(3) .c2{width:5px; height:5px; background:var(--blue); bottom:1px; left:-9px;}
+  .nav-btn:nth-child(4) .c1{width:6px; height:6px; background:var(--purple); top:-6px; left:-9px;}
+  .nav-btn:nth-child(4) .c2{width:5px; height:5px; background:var(--pink); bottom:1px; right:-10px;}
+  .nav-btn:nth-child(5) .c1{width:7px; height:7px; background:var(--gold); top:-8px; left:-8px;}
+  .nav-btn:nth-child(5) .c2{width:5px; height:5px; background:var(--pink); bottom:0; right:-10px;}
 
   .toast{
     position:fixed; left:50%; bottom:86px; transform:translateX(-50%) translateY(10px); background:var(--text);
@@ -280,14 +265,70 @@
   .empty-state .em{width:70px; height:70px; margin:0 auto;}
   .empty-state h2{color:var(--pink-deep); font-size:18px; margin:10px 0 6px;}
   .empty-state p{color:var(--sub); font-size:13px; line-height:1.7;}
+
+  /* ===== 2026-08 ひー暦 デザイン仕上げ ===== */
+  :root{--coco-line:#C8A37E;}
+  body{
+    background-color:#FFF8FA;
+    background-image:
+      linear-gradient(rgba(255,255,255,.52),rgba(255,255,255,.52)),
+      repeating-linear-gradient(0deg,rgba(var(--pink-rgb),.10) 0 18px,transparent 18px 36px),
+      repeating-linear-gradient(90deg,rgba(var(--pink-rgb),.10) 0 18px,transparent 18px 36px);
+    background-blend-mode:normal; padding-bottom:118px;
+  }
+  .wrap{max-width:460px;padding:calc(env(safe-area-inset-top) + 18px) 14px 24px;}
+  .topbar{align-items:center;padding:8px 2px 20px;gap:10px;}
+  .menu-btn{width:50px;height:50px;border:2px solid rgba(var(--pink-rgb),.18);box-shadow:0 6px 16px rgba(var(--pink-rgb),.12);}
+  .brand-titles{padding-top:0;}
+  .brand-titles h1{font-size:34px;letter-spacing:2px;text-shadow:0 2px 0 #fff;}
+  .brand-titles p{font-size:12px;color:#6F5D64;margin-top:5px;}
+  .avatar{width:66px;height:66px;box-shadow:0 6px 16px rgba(var(--pink-rgb),.14);}
+  .card,.general-today{border:1px solid rgba(var(--pink-rgb),.10);box-shadow:0 7px 22px rgba(var(--pink-rgb),.11);}
+  .general-today{padding:23px 22px 24px;border-radius:28px;margin-bottom:10px;}
+  .gt-label{font-size:13px;color:var(--gold);margin-bottom:14px;}
+  .gt-date{font-size:15px;margin-bottom:13px;}
+  .gt-headline{font-size:24px;letter-spacing:.2px;margin-bottom:12px;}
+  .gt-desc{font-size:14px;line-height:1.9;margin-bottom:15px;}
+  .gt-badges .mb{background:transparent;border-bottom:1.5px dotted var(--sub);border-radius:0;padding:4px 1px;color:var(--text);font-size:12px;}
+  .gt-bullets{gap:9px;margin-top:8px;margin-bottom:0;}
+  .gt-bullets li{background:linear-gradient(90deg,rgba(var(--pink-rgb),.08),rgba(var(--pink-rgb),.04));border:1px solid rgba(var(--pink-rgb),.06);padding:12px 13px;border-radius:15px;font-size:13.5px;}
+  .hero-advice{background:linear-gradient(145deg,#fff 0%,rgba(var(--pink-rgb),.07) 100%);color:var(--text);border:1px solid rgba(var(--pink-rgb),.12);box-shadow:0 7px 22px rgba(var(--pink-rgb),.11);}
+  .hero-advice .heart-deco{color:var(--pink);}.hero-date{color:var(--pink-deep);}.hero-headline{color:var(--pink-deep);}
+  .hero-bullets li{background:rgba(var(--pink-rgb),.08);color:var(--pink-deep);}.hero-bullets .ic-wrap{color:var(--green);}
+  .hero-sub{color:var(--text);}
+  .divider-heart{margin:18px 8px;}.divider-heart::before,.divider-heart::after{border-top:2px dashed rgba(var(--pink-rgb),.35);}
+  .bottom-nav{
+    left:10px;right:10px;bottom:8px;max-width:440px;margin:0 auto;
+    padding:22px 8px calc(12px + env(safe-area-inset-bottom));
+    border-radius:30px 30px 22px 22px;border:1px solid rgba(var(--pink-rgb),.12);
+    box-shadow:0 -2px 20px rgba(var(--pink-rgb),.12);
+  }
+  .bottom-nav::before{top:-11px;height:22px;background-image:radial-gradient(circle at 11px 11px,#fff 10.5px,transparent 11px);background-size:22px 22px;filter:drop-shadow(0 -1px 0 rgba(var(--pink-rgb),.10));}
+  .nav-btn{min-height:74px;border-radius:24px;gap:5px;font-size:11px;color:#59464D;padding:9px 2px 7px;transition:.18s ease;}
+  .nav-btn .ic-wrap{width:33px;height:33px;color:var(--pink);}
+  .nav-btn[data-tab="dog"] .ic-wrap{width:40px;height:34px;color:var(--coco-line);}
+  .nav-btn[data-tab="settings"] .ic-wrap{color:#B47C83;}
+  .nav-btn.active{background:linear-gradient(145deg,rgba(var(--pink-rgb),.13),rgba(var(--pink-rgb),.05));color:var(--pink-deep);}
+  .nav-btn.active .ic-wrap{filter:none;}
+  .nav-heart{position:absolute;top:2px;right:18%;font-size:16px;color:var(--pink);font-weight:500;line-height:1;}
+  .confetti{display:none!important;}
+  .theme-swatches{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 4px;}
+  .theme-swatch{width:42px;height:42px;border-radius:50%;cursor:pointer;border:3px solid transparent;box-shadow:0 2px 6px rgba(0,0,0,.12);position:relative;}
+  .theme-swatch.active{border-color:var(--text);}
+  .theme-swatch.active::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:800;text-shadow:0 1px 2px rgba(0,0,0,.3);}
+  @media (max-width:390px){
+    .brand-titles h1{font-size:30px}.brand-titles p{font-size:11px}.menu-btn{width:46px;height:46px}.avatar{width:60px;height:60px}
+    .general-today{padding:21px 18px}.gt-headline{font-size:21px}.nav-btn .ic-wrap{width:30px;height:30px}.nav-btn[data-tab="dog"] .ic-wrap{width:37px;height:31px}
+  }
+
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <linearGradient id="navGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" class="navgrad-a"/>
-      <stop offset="1" class="navgrad-b"/>
+      <stop offset="0" stop-color="#FFA0C6"/>
+      <stop offset="1" stop-color="#E8558A"/>
     </linearGradient>
   </defs>
 </svg>
@@ -299,7 +340,7 @@
     <div class="brand-titles">
       <span class="heart-deco hd1">♡</span>
       <span class="heart-deco hd3">♡</span>
-      <h1 id="brandTitle">占い暦<span class="heart-swoosh">♡</span></h1>
+      <h1 id="brandTitle">ひー暦<span class="heart-swoosh">♡</span></h1>
       <span class="heart-deco hd2">♡</span>
       <p>今日のわたしを、ちょっと知る。</p>
     </div>
@@ -358,18 +399,15 @@
     <h3>設定</h3>
     <label>テーマカラー</label>
     <div id="themeSwatches" class="theme-swatches"></div>
-    <div class="btn-row">
-      <button class="btn ghost" id="btnManagePeople">占う人を追加・編集する</button>
-    </div>
-    <div class="btn-row">
-      <button class="btn primary" id="settingsModalClose">閉じる</button>
-    </div>
+    <div class="btn-row"><button class="btn ghost" id="btnManagePeople">占う人を追加・編集する</button></div>
+    <div class="btn-row"><button class="btn primary" id="settingsModalClose">閉じる</button></div>
   </div>
 </div>
 
 <script>
 /* ===== アイコン(SVG。絵文字フォントに依存しないよう全てSVGで用意) ===== */
 const ICONS = {
+  // 犬アイコンは dog / navDog で同じデザインに統一。変更時は両方同じSVGにすること。
   menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>',
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9a1 1 0 0 0 1 1h3v-6h4v6h3a1 1 0 0 0 1-1v-9"/></svg>',
   calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="15" rx="2.5"/><line x1="3.5" y1="10" x2="20.5" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>',
@@ -385,11 +423,11 @@ const ICONS = {
   moon:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 7 7 0 0 0 20 14.5z"/></svg>',
   sparkle:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg>',
   dog:'<svg viewBox="0 0 40 40"><ellipse cx="5.5" cy="23" rx="4.4" ry="6.4" fill="#EAE0DA"/><ellipse cx="34.5" cy="23" rx="4.4" ry="6.4" fill="#EAE0DA"/><circle cx="7" cy="10" r="5.6" fill="#EAE0DA"/><circle cx="13.5" cy="5.5" r="5.8" fill="#EAE0DA"/><circle cx="20" cy="4" r="5.8" fill="#EAE0DA"/><circle cx="26.5" cy="5.5" r="5.8" fill="#EAE0DA"/><circle cx="33" cy="10" r="5.6" fill="#EAE0DA"/><circle cx="9" cy="16" r="5" fill="#EAE0DA"/><circle cx="31" cy="16" r="5" fill="#EAE0DA"/><circle cx="20" cy="24" r="12.5" fill="#F4EEEA"/><ellipse cx="14.5" cy="27" rx="2.6" ry="1.7" fill="#FCC9DA" opacity="0.7"/><ellipse cx="25.5" cy="27" rx="2.6" ry="1.7" fill="#FCC9DA" opacity="0.7"/><circle cx="15" cy="23" r="1.8" fill="#4A3A42"/><circle cx="25" cy="23" r="1.8" fill="#4A3A42"/><ellipse cx="20" cy="28" rx="2.3" ry="1.7" fill="#4A3A42"/><path d="M14 34c2.5 1.6 9.5 1.6 12 0" stroke="#E8558A" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M18.3 35.6l1.7 1.7 1.7-1.7c.9-.9.9-2.2 0-2.9-.7-.6-1.6-.4-2 .2l-.1.1-.1-.1c-.4-.6-1.3-.8-2-.2-.9.7-.9 2 0 2.9z" fill="#E8558A"/></svg>',
-  navHome:'<svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5v7.5a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z" fill="url(#navGrad)" style="stroke:var(--pink-deep)" stroke-width="1" stroke-linejoin="round"/></svg>',
-  navCalendar:'<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3" fill="url(#navGrad)" style="stroke:var(--pink-deep)" stroke-width="1"/><rect x="3" y="4.5" width="18" height="5" rx="3" fill="#fff" opacity=".35"/><circle cx="8" cy="8" r="1.2" fill="#fff"/><circle cx="16" cy="8" r="1.2" fill="#fff"/><circle cx="8" cy="14" r="1" fill="#fff"/><circle cx="12" cy="14" r="1" fill="#fff"/><circle cx="16" cy="14" r="1" fill="#fff"/></svg>',
-  navHeart:'<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.1C.6 8.6 2.2 5 5.8 5c2 0 3.4 1.1 4.2 2.4C10.8 6.1 12.2 5 14.2 5c3.6 0 5.2 3.6 3.8 6.9C19.5 16.4 12 21 12 21z" fill="url(#navGrad)" style="stroke:var(--pink-deep)" stroke-width="1"/><ellipse cx="8.3" cy="8.3" rx="1.6" ry="1" fill="#fff" opacity=".55" transform="rotate(-30 8.3 8.3)"/></svg>',
-  navGear:'<svg viewBox="0 0 24 24"><path d="M19.4 13a7.9 7.9 0 0 0 0-2l2-1.5-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3h-4l-.4 2.1a8 8 0 0 0-1.7 1l-2.4-1-2 3.4L6.5 11a7.9 7.9 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 1.7 1L11 21h4l.4-2.1a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2.1-1.5z" fill="url(#navGrad)" style="stroke:var(--pink-deep)" stroke-width="1" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="#fff"/></svg>',
-  navDog:'<svg viewBox="0 0 24 24"><ellipse cx="6" cy="9" rx="3.4" ry="4.6" fill="#F0DEC0" transform="rotate(-20 6 9)"/><ellipse cx="18" cy="9" rx="3.4" ry="4.6" fill="#F0DEC0" transform="rotate(20 18 9)"/><circle cx="12" cy="12" r="7.2" fill="#F7E7CE" stroke="#D9A65C" stroke-width="1"/><circle cx="9.3" cy="11" r="1.1" fill="#4A3A42"/><circle cx="14.7" cy="11" r="1.1" fill="#4A3A42"/><ellipse cx="12" cy="14.2" rx="1.4" ry="1" fill="#4A3A42"/><path d="M8.5 18.5l3.5-2 3.5 2-1.2-2.6h-4.6z" fill="#E8558A"/><circle cx="12" cy="17" r="1" fill="#C94A78"/></svg>',
+  navHome:'<svg viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5v7.5a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1" stroke-linejoin="round"/></svg>',
+  navCalendar:'<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="3" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1"/><rect x="3" y="4.5" width="18" height="5" rx="3" fill="#fff" opacity=".35"/><circle cx="8" cy="8" r="1.2" fill="#fff"/><circle cx="16" cy="8" r="1.2" fill="#fff"/><circle cx="8" cy="14" r="1" fill="#fff"/><circle cx="12" cy="14" r="1" fill="#fff"/><circle cx="16" cy="14" r="1" fill="#fff"/></svg>',
+  navHeart:'<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.1C.6 8.6 2.2 5 5.8 5c2 0 3.4 1.1 4.2 2.4C10.8 6.1 12.2 5 14.2 5c3.6 0 5.2 3.6 3.8 6.9C19.5 16.4 12 21 12 21z" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1"/><ellipse cx="8.3" cy="8.3" rx="1.6" ry="1" fill="#fff" opacity=".55" transform="rotate(-30 8.3 8.3)"/></svg>',
+  navGear:'<svg viewBox="0 0 24 24"><path d="M19.4 13a7.9 7.9 0 0 0 0-2l2-1.5-2-3.4-2.4 1a8 8 0 0 0-1.7-1L15 3h-4l-.4 2.1a8 8 0 0 0-1.7 1l-2.4-1-2 3.4L6.5 11a7.9 7.9 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a8 8 0 0 0 1.7 1L11 21h4l.4-2.1a8 8 0 0 0 1.7-1l2.4 1 2-3.4-2.1-1.5z" fill="url(#navGrad)" stroke="#C94A78" stroke-width="1" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="#fff"/></svg>',
+  navDog:'<svg viewBox="0 0 64 48" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke="#C8A37E" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M16 34c-5.5-.2-9.2-3.1-9.2-7 0-2.8 1.9-5 4.6-6.1-1.2-4.2 1.5-7.7 5.5-8.6.7-4 4.3-6.7 8.2-6.1 1.8-2.6 5-4.2 8-3.4 3-.8 6.2.8 8 3.4 3.9-.6 7.5 2.1 8.2 6.1 4 .9 6.7 4.4 5.5 8.6 2.7 1.1 4.6 3.3 4.6 6.1 0 3.9-3.7 6.8-9.2 7"/><path d="M21 20c-2.7 2.2-3.5 5.3-2.6 8.1M43 20c2.7 2.2 3.5 5.3 2.6 8.1"/><path d="M17.5 33.2c1.4-2.7 4.2-4.2 7.2-3.5 2-1.8 4.5-2.7 7.3-2.7 2.8 0 5.3.9 7.3 2.7 3-.7 5.8.8 7.2 3.5"/><path d="M24.5 34.5c-1.7-.8-4.8-.3-5.8 1.7-1 2 .6 4.6 3.2 4.5 2.7-.1 4.1-2.8 2.6-6.2zM39.5 34.5c1.7-.8 4.8-.3 5.8 1.7 1 2-.6 4.6-3.2 4.5-2.7-.1-4.1-2.8-2.6-6.2z"/><path d="M24.3 40c2.2 2.1 13.2 2.1 15.4 0"/><path d="M32 34.8v3.1M28.7 38.2c1.2 1.2 2.2 1.5 3.3 1.5 1.1 0 2.1-.3 3.3-1.5"/></g><circle cx="25.7" cy="27.4" r="2.35" fill="#B58A67"/><circle cx="38.3" cy="27.4" r="2.35" fill="#B58A67"/><circle cx="26.4" cy="26.6" r=".7" fill="#FFF"/><circle cx="39" cy="26.6" r=".7" fill="#FFF"/><ellipse cx="32" cy="34.1" rx="2.6" ry="2" fill="#B58A67"/><ellipse cx="31.3" cy="33.5" rx=".75" ry=".45" fill="#FFF" opacity=".8"/></svg>',
   heartMark:'<svg viewBox="0 0 60 90" fill="none"><line x1="10" y1="30" x2="18" y2="18" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><line x1="26" y1="14" x2="30" y2="4" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M30 82C10 68 4 52 4 40 4 28 14 20 24 20 28 20 30 22 30 26 30 22 32 20 36 20 46 20 56 28 56 40 56 52 50 68 30 82Z" fill="currentColor"/></svg>',
   heartOutline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-10-9.1C.6 8.6 2.2 5 5.8 5c2 0 3.4 1.1 4.2 2.4C10.8 6.1 12.2 5 14.2 5c3.6 0 5.2 3.6 3.8 6.9C19.5 16.4 12 21 12 21z"/></svg>'
 };
@@ -399,8 +437,7 @@ document.getElementById('drawerTitleIcon').innerHTML = ICONS.paw;
 document.querySelectorAll('.nav-btn').forEach(btn=>{
   const name = btn.dataset.icon;
   const label = btn.textContent;
-  btn.innerHTML = '<span class="ic-wrap" style="width:22px;height:22px;">'+ICONS[name]+
-    '<span class="confetti c1"></span><span class="confetti c2 star"></span></span><span>'+label+'</span>';
+  btn.innerHTML = '<span class="nav-heart">♡</span><span class="ic-wrap">'+ICONS[name]+'</span><span>'+label+'</span>';
 });
 
 /* ===== ストレージ ===== */
@@ -414,24 +451,20 @@ function setCurrentId(id){ localStorage.setItem(LS_CURRENT, id); }
 
 /* ===== テーマカラー ===== */
 const THEME_PRESETS = [
-  {key:'pink',      name:'ピンク',     pink:'#FF6FA1', rgb:'255,111,161', deep:'#E8558A', pale:'#FFF3F7', line:'#FBE0EA', bg:'#FFEAF1'},
-  {key:'lavender',  name:'ラベンダー', pink:'#9B87D9', rgb:'155,135,217', deep:'#7A63C4', pale:'#F3F0FC', line:'#E3DBF7', bg:'#F1EDFC'},
-  {key:'mint',      name:'ミント',     pink:'#4FBE95', rgb:'79,190,149',  deep:'#3AA07C', pale:'#EAFAF3', line:'#D3F0E3', bg:'#E9F9F1'},
-  {key:'blue',      name:'ブルー',     pink:'#5FA9D8', rgb:'95,169,216',  deep:'#4489BE', pale:'#EAF4FB', line:'#D9EAF6', bg:'#E9F3FB'},
-  {key:'coral',     name:'コーラル',   pink:'#FF8A6B', rgb:'255,138,107', deep:'#E86A48', pale:'#FFF1EC', line:'#FFE1D6', bg:'#FFEDE6'},
-  {key:'yellow',    name:'イエロー',   pink:'#E8B23D', rgb:'232,178,61',  deep:'#C89325', pale:'#FFF8E8', line:'#F7E7C2', bg:'#FFF6E3'}
+  {key:'pink',name:'ピンク',pink:'#FF6FA1',rgb:'255,111,161',deep:'#E8558A',pale:'#FFF3F7',line:'#FBE0EA',bg:'#FFEAF1'},
+  {key:'lavender',name:'ラベンダー',pink:'#9B87D9',rgb:'155,135,217',deep:'#7A63C4',pale:'#F3F0FC',line:'#E3DBF7',bg:'#F1EDFC'},
+  {key:'mint',name:'ミント',pink:'#4FBE95',rgb:'79,190,149',deep:'#3AA07C',pale:'#EAFAF3',line:'#D3F0E3',bg:'#E9F9F1'},
+  {key:'blue',name:'ブルー',pink:'#5FA9D8',rgb:'95,169,216',deep:'#4489BE',pale:'#EAF4FB',line:'#D9EAF6',bg:'#E9F3FB'},
+  {key:'coral',name:'コーラル',pink:'#FF8A6B',rgb:'255,138,107',deep:'#E86A48',pale:'#FFF1EC',line:'#FFE1D6',bg:'#FFEDE6'},
+  {key:'yellow',name:'イエロー',pink:'#E8B23D',rgb:'232,178,61',deep:'#C89325',pale:'#FFF8E8',line:'#F7E7C2',bg:'#FFF6E3'}
 ];
 function loadThemeKey(){ return localStorage.getItem(LS_THEME) || 'pink'; }
 function saveThemeKey(key){ localStorage.setItem(LS_THEME, key); }
 function applyTheme(key){
   const p = THEME_PRESETS.find(t=>t.key===key) || THEME_PRESETS[0];
   const r = document.documentElement.style;
-  r.setProperty('--pink', p.pink);
-  r.setProperty('--pink-rgb', p.rgb);
-  r.setProperty('--pink-deep', p.deep);
-  r.setProperty('--pink-pale', p.pale);
-  r.setProperty('--line', p.line);
-  r.setProperty('--bg', p.bg);
+  r.setProperty('--pink',p.pink); r.setProperty('--pink-rgb',p.rgb); r.setProperty('--pink-deep',p.deep);
+  r.setProperty('--pink-pale',p.pale); r.setProperty('--line',p.line); r.setProperty('--bg',p.bg);
 }
 applyTheme(loadThemeKey());
 
@@ -745,7 +778,7 @@ function render(){
   const people = loadPeople();
   const content = document.getElementById('content');
   if(people.length===0){
-    document.getElementById('brandTitle').textContent = '占い暦';
+    document.getElementById('brandTitle').textContent = 'ひー暦';
     renderAvatar(null);
     content.innerHTML = '<div class="empty-state"><div class="em">'+ic('dog','width:70px;height:70px;')+'</div>'+
       '<h2>まずは占う人を登録しよう</h2>'+
@@ -775,7 +808,7 @@ function renderHomeView(person){
   const money = seededPick(rng, MONEY);
   const color = seededPick(rng, COLORS);
 
-  // 「全体的には今日はこんな日」用: 人に依存しない、日付だけのシード
+  // 全員共通の「今日は全体的にこんな日」
   const dayRng = hashStr('everyone_'+dateKey);
   const gT = seededPick(dayRng, THEMES);
   const gTIdx = THEMES.indexOf(gT);
@@ -1028,7 +1061,6 @@ function openModal(person){
 }
 function closeModal(){ document.getElementById('modalBg').classList.remove('show'); }
 document.getElementById('btnCancel').onclick = closeModal;
-
 function renderThemeSwatches(){
   const wrap = document.getElementById('themeSwatches');
   const cur = loadThemeKey();
@@ -1036,24 +1068,17 @@ function renderThemeSwatches(){
   THEME_PRESETS.forEach(p=>{
     const sw = document.createElement('div');
     sw.className = 'theme-swatch' + (p.key===cur ? ' active' : '');
-    sw.style.background = p.pink;
-    sw.title = p.name;
-    sw.onclick = ()=>{
-      saveThemeKey(p.key);
-      applyTheme(p.key);
-      renderThemeSwatches();
-    };
+    sw.style.background = p.pink; sw.title = p.name;
+    sw.onclick = ()=>{ saveThemeKey(p.key); applyTheme(p.key); renderThemeSwatches(); };
     wrap.appendChild(sw);
   });
 }
-function openSettingsModal(){
-  renderThemeSwatches();
-  document.getElementById('settingsModalBg').classList.add('show');
-}
+function openSettingsModal(){ renderThemeSwatches(); document.getElementById('settingsModalBg').classList.add('show'); }
 function closeSettingsModal(){ document.getElementById('settingsModalBg').classList.remove('show'); }
 document.getElementById('settingsModalClose').onclick = closeSettingsModal;
 document.getElementById('settingsModalBg').onclick = (e)=>{ if(e.target.id==='settingsModalBg') closeSettingsModal(); };
 document.getElementById('btnManagePeople').onclick = ()=>{ closeSettingsModal(); openModal(); };
+
 function openInfoModal(title, bodyHtml){
   document.getElementById('infoModalTitle').textContent = title;
   document.getElementById('infoModalBody').innerHTML = bodyHtml;
