@@ -230,7 +230,7 @@
   /* ===== modal ===== */
   .modal-bg{display:none; position:fixed; inset:0; background:rgba(74,58,66,.45); z-index:70; align-items:flex-end; justify-content:center;}
   .modal-bg.show{display:flex;}
-  .modal{background:#fff; width:100%; max-width:460px; border-radius:22px 22px 0 0; padding:22px 20px 26px; animation:up .2s ease-out;}
+  .modal{background:#fff; width:100%; max-width:460px; border-radius:22px 22px 0 0; padding:22px 20px 26px; animation:up .2s ease-out; max-height:82vh; max-height:82dvh; overflow-y:auto; -webkit-overflow-scrolling:touch;}
   @keyframes up{from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;}}
   .modal h3{margin:0 0 14px; color:var(--pink-deep); font-size:17px;}
   .modal label{font-size:12px; color:var(--sub); font-weight:700; display:block; margin:12px 0 5px;}
@@ -1133,6 +1133,7 @@ function openInfoModal(title, bodyHtml){
   document.getElementById('infoModalTitle').textContent = title;
   document.getElementById('infoModalBody').innerHTML = bodyHtml;
   document.getElementById('infoModalBg').classList.add('show');
+  document.querySelector('#infoModalBg .modal').scrollTop = 0;
 }
 function closeInfoModal(){ document.getElementById('infoModalBg').classList.remove('show'); }
 document.getElementById('infoModalClose').onclick = closeInfoModal;
