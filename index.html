@@ -102,6 +102,11 @@
   .mini-badges .mb .ic-wrap{width:12px; height:12px;}
   .mini-badges .mb.daimyou{background:linear-gradient(135deg,var(--gold),var(--pink)); color:#fff;}
   .tap-link{border-bottom:1.5px dotted currentColor; cursor:pointer;}
+  .info-q{
+    display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px;
+    border-radius:50%; background:var(--pink-pale); color:var(--pink-deep); font-size:11px; font-weight:800;
+    margin-left:5px; cursor:pointer; vertical-align:middle; border:1px solid var(--line);
+  }
   .keyword-box{background:var(--pink-pale); border-radius:18px; padding:16px; text-align:center; border:1px solid var(--line);}
   .keyword-box .label{font-size:11.5px; color:var(--pink-deep); font-weight:800; margin-bottom:6px; display:flex; align-items:center; justify-content:center; gap:5px;}
   .keyword-box .label .ic-wrap{width:14px; height:14px; color:var(--green);}
@@ -394,6 +399,7 @@ const ICONS = {
   heartOutline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-10-9.1C.6 8.6 2.2 5 5.8 5c2 0 3.4 1.1 4.2 2.4C10.8 6.1 12.2 5 14.2 5c3.6 0 5.2 3.6 3.8 6.9C19.5 16.4 12 21 12 21z"/></svg>'
 };
 function ic(name, extra){ return '<span class="ic-wrap"'+(extra?(' style="'+extra+'"'):'')+'>'+ICONS[name]+'</span>'; }
+function infoQ(key){ return '<span class="info-q" onclick="showSystemInfo(\''+key+'\')">？</span>'; }
 document.getElementById('menuBtn').innerHTML = ic('menu','width:20px;height:20px;');
 document.getElementById('drawerTitleIcon').innerHTML = ICONS.paw;
 document.querySelectorAll('.nav-btn').forEach(btn=>{
@@ -706,7 +712,8 @@ function kanshiExplain(kIdx){
   const kanI = kIdx%10, shiI = kIdx%12;
   const kanji = KAN[kanI]+SHI[shiI];
   const yomi = KAN_YOMI[kanI]+SHI_YOMI[shiI];
-  let body = '<b style="color:var(--pink-deep);">一般的にはどんな日？</b><br>'+
+  let body = '<div style="font-size:11.5px; color:var(--sub); margin-bottom:12px; padding-bottom:12px; border-bottom:1px dashed var(--line);">'+SYSTEM_INFO.kanshiSystem.body.split(ASTRO_NOTE)[0]+'</div>'+
+    '<b style="color:var(--pink-deep);">一般的にはどんな日？</b><br>'+
     '「'+KAN[kanI]+'('+KAN_YOMI[kanI]+')」は、'+KAN_TRAIT[kanI]+'。<br><br>'+
     '「'+SHI[shiI]+'('+SHI_YOMI[shiI]+')」は、'+SHI_TRAIT[shiI]+'。<br><br>'+
     kanji+'の日は、この2つのエネルギーが組み合わさった一日と言われています。';
@@ -937,7 +944,7 @@ function renderHomeView(person){
     <div class="grid2">
       <div class="card">
         ${ic('heartMark','position:absolute; top:10px; right:10px; width:16px; height:24px; color:var(--pink); opacity:.35;')}
-        <span class="badge">数秘術</span>
+        <span class="badge">数秘術${infoQ('numerology')}</span>
         <div class="lifepath-row"><span class="num">${num.lifePath}</span><span class="lab">ライフパス</span><span class="lp-heart">♡</span></div>
         <div class="numero-grid">
           <div class="box"><div class="n">${num.personalYear}</div><div class="l">イヤー</div></div>
@@ -945,7 +952,7 @@ function renderHomeView(person){
           <div class="box"><div class="n">${num.personalDay}</div><div class="l">デイ</div></div>
         </div>
         <div class="meaning"><b>あなたの強み♡</b><br>${LIFEPATH_MEANING[num.lifePath]}</div>
-        <div style="font-size:11.5px; color:var(--sub); margin-top:8px;">本命星(九星気学簡易)：<b style="color:var(--pink-deep);">${starName}</b></div>
+        <div style="font-size:11.5px; color:var(--sub); margin-top:8px;">本命星(九星気学)${infoQ('ninestar')}：<b style="color:var(--pink-deep);">${starName}</b></div>
       </div>
       <div class="card" style="overflow:visible;">
         ${avatarSmallHTML(person.id, 58)}
@@ -955,7 +962,7 @@ function renderHomeView(person){
       </div>
     </div>
 
-    <h2 class="section-title">${ic('sparkle','color:var(--purple);')}マヤ暦でみる${person.name}さん</h2>
+    <h2 class="section-title">${ic('sparkle','color:var(--purple);')}マヤ暦でみる${person.name}さん${infoQ('maya')}</h2>
     <div class="grid2">
       <div class="card">
         <span class="badge" style="background:var(--purple);">誕生KIN</span>
@@ -1132,6 +1139,31 @@ document.getElementById('infoModalClose').onclick = closeInfoModal;
 document.getElementById('infoModalBg').onclick = (e)=>{ if(e.target.id==='infoModalBg') closeInfoModal(); };
 function showKanshiInfo(kIdx){ const info = kanshiExplain(kIdx); openInfoModal(info.title, info.body); }
 function showDaimyouInfo(){ const info = daimyouExplain(); openInfoModal(info.title, info.body); }
+
+/* ===== 占いの仕組みそのものの解説(初めて使う人向け) ===== */
+const SYSTEM_INFO = {
+  numerology: {
+    title: '数秘術ってなに？',
+    body: '生年月日から導き出す数字(ライフパスナンバーなど)をもとに、その人が生まれ持った性格や才能、今の運気を読み解く占術です。<br><br>'+
+      '古代ギリシャの数学者ピタゴラスが起源のひとつともいわれ、世界中で親しまれています。数字ごとに「1は行動力」「6は愛情」のような意味が決まっています。'+ASTRO_NOTE
+  },
+  maya: {
+    title: 'マヤ暦ってなに？',
+    body: '古代マヤ文明で使われていた、260日で1周する暦(ツォルキン暦)をもとにした占術です。<br><br>'+
+      '生まれた日ごとに「紋章(20種類の動物や自然のシンボル)」と「音(13種類のエネルギー)」の組み合わせ(KINナンバー)が決まっていて、その人の個性や、その日ごとのエネルギーを表すとされています。'+ASTRO_NOTE
+  },
+  ninestar: {
+    title: '九星気学ってなに？',
+    body: '生まれた年をもとに、9つの星(一白水星〜九紫火星)のどれかに当てはめて、性格や運勢を読み解く占術です。<br><br>'+
+      '中国の陰陽五行説がベースになっていて、日本では方位や引っ越しの吉凶を占うのにもよく使われています。'+ASTRO_NOTE
+  },
+  kanshiSystem: {
+    title: '干支ってなに？',
+    body: '「十干(甲・乙・丙…)」と「十二支(子・丑・寅…)」を組み合わせた、60種類の周期で日にちや年を表す、中国由来の伝統的な暦の仕組みです。<br><br>'+
+      '年賀状でおなじみの「子年・丑年」も、この十二支の部分です。それぞれの組み合わせごとに、その日らしいエネルギーがあるとされています。'+ASTRO_NOTE
+  }
+};
+function showSystemInfo(key){ const info = SYSTEM_INFO[key]; openInfoModal(info.title, info.body); }
 document.getElementById('modalBg').onclick = (e)=>{ if(e.target.id==='modalBg') closeModal(); };
 document.getElementById('btnSave').onclick = ()=>{
   const name = document.getElementById('inName').value.trim();
