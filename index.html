@@ -607,6 +607,12 @@ function kanshiIndex(date){ return ((dayCount(date) + 17) % 60 + 60) % 60; }
 // 大明日となる干支(25干支説, 0-based index)
 const DAIMYOUNICHI_INDICES = [5,6,7,8,9,13,15,18,20,23,28,31,38,40,41,42,43,45,46,47,52,54,55,56,57];
 function isDaimyounichi(kIdx){ return DAIMYOUNICHI_INDICES.includes(kIdx); }
+// 神吉日となる干支(0-based index、干支だけで決まる33パターン)
+const KAMIYOSHI_INDICES = [1,3,5,6,8,9,13,15,18,20,21,24,27,30,32,33,35,36,37,39,41,42,43,44,45,47,48,51,54,55,56,57,59];
+function isKamiyoshi(kIdx){ return KAMIYOSHI_INDICES.includes(kIdx); }
+// 天恩日となる干支(0-based index、干支だけで決まる15パターン。5日間×3セット)
+const TENON_INDICES = [0,1,2,3,4, 15,16,17,18,19, 45,46,47,48,49];
+function isTenon(kIdx){ return TENON_INDICES.includes(kIdx); }
 
 /* ===== 旧暦(1900-2100)。香港天文台のデータに基づく公開アルゴリズム(jjonline/calendar.js)を使用 ===== */
 const LUNAR_INFO = [
@@ -743,6 +749,34 @@ function daimyouExplain(){
   body += ASTRO_NOTE;
   return { title: '大明日（だいみょうにち）', body };
 }
+function kamiyoshiExplain(){
+  let body = '<b style="color:var(--pink-deep);">一般的にはどんな日？</b><br>'+
+    '神様の加護を受けやすいとされる吉日で、「神よし」の名の通り、神社への参拝・祈願や、お墓参り、祖先の祀りなどの神事に向いているとされています。<br><br>'+
+    '大明日と同じく「七箇の善日」のひとつで、干支の組み合わせだけで決まります。60パターン中33パターンが該当するので、1年の半分以上が神吉日という、頻度の高い吉日です。';
+  const ctx = window._todayCtx;
+  if(ctx){
+    body += personalBlock(
+      '神様に見守られやすいこの日は、'+ctx.personName+'さんの強みである「'+ctx.lifePathMeaning+'」を、感謝の気持ちとともに大切な人に伝えてみるとよさそうです。<br><br>'+
+      '九星気学の'+ctx.starName+'らしさ(『'+ctx.starTrait+'』)を、神仏への感謝やお参りの場面で意識してみて。'
+    );
+  }
+  body += ASTRO_NOTE;
+  return { title: '神吉日（かみよしにち）', body };
+}
+function tenonExplain(){
+  let body = '<b style="color:var(--pink-deep);">一般的にはどんな日？</b><br>'+
+    '「天の恵みをすべての人が受けられる日」とされる吉日で、結婚式・入籍・結納・引っ越し・旅行など、お祝い事全般に良いとされています(逆にお葬式など弔事には不向きとされます)。<br><br>'+
+    '大明日・神吉日と同じ「七箇の善日」のひとつで、干支の組み合わせだけで決まります。一度巡ってくると5日間続けて天恩日になるのが特徴です。';
+  const ctx = window._todayCtx;
+  if(ctx){
+    body += personalBlock(
+      '天からの恵みを受けやすいこの日は、'+ctx.personName+'さんの強みである「'+ctx.lifePathMeaning+'」を、お祝い事や新しい出会いの場面で発揮しやすそうです。<br><br>'+
+      '九星気学の'+ctx.starName+'らしさ(『'+ctx.starTrait+'』)を意識すると、天恩日の後押しをより受け取りやすくなりそうです。'
+    );
+  }
+  body += ASTRO_NOTE;
+  return { title: '天恩日（てんおんにち）', body };
+}
 function moonPhase(date){
   const synodic = 29.53058867;
   const ref = Date.UTC(2000,0,6,18,14)/86400000;
@@ -866,6 +900,8 @@ function renderHomeView(person){
   const kanshi = KAN[kIdx%10] + SHI[kIdx%12];
   const kanshiYomi = KAN_YOMI[kIdx%10] + SHI_YOMI[kIdx%12];
   const daimyou = isDaimyounichi(kIdx);
+  const kamiyoshi = isKamiyoshi(kIdx);
+  const tenon = isTenon(kIdx);
   const rokuyo = calcRokuyo(dateObj) || '―';
   const moonKey = moonPhase(dateObj);
   const moonName = MOON_NAME[moonKey];
@@ -894,6 +930,8 @@ function renderHomeView(person){
       <div class="gt-badges">
         <span class="mb tap-link" onclick="showKanshiInfo(${kIdx})">干支 ${kanshi}（${kanshiYomi}）</span>
         ${daimyou ? '<span class="mb daimyou tap-link" onclick="showDaimyouInfo()">'+ic('sparkle','width:11px;height:11px;')+'大明日</span>' : ''}
+        ${kamiyoshi ? '<span class="mb daimyou tap-link" onclick="showKamiyoshiInfo()">'+ic('sparkle','width:11px;height:11px;')+'神吉日</span>' : ''}
+        ${tenon ? '<span class="mb daimyou tap-link" onclick="showTenonInfo()">'+ic('sparkle','width:11px;height:11px;')+'天恩日</span>' : ''}
         <span class="mb">六曜 ${rokuyo}</span>
       </div>
       <ul class="hero-bullets gt-bullets">
@@ -933,6 +971,8 @@ function renderHomeView(person){
           <span class="mb">六曜 ${rokuyo}</span>
           <span class="mb">${ic('moon','width:12px;height:12px;color:var(--purple);')}${moonName}</span>
           ${daimyou ? '<span class="mb daimyou tap-link" onclick="showDaimyouInfo()">'+ic('sparkle','width:11px;height:11px;')+'大明日</span>' : ''}
+          ${kamiyoshi ? '<span class="mb daimyou tap-link" onclick="showKamiyoshiInfo()">'+ic('sparkle','width:11px;height:11px;')+'神吉日</span>' : ''}
+          ${tenon ? '<span class="mb daimyou tap-link" onclick="showTenonInfo()">'+ic('sparkle','width:11px;height:11px;')+'天恩日</span>' : ''}
         </div>
         <div class="keyword-box">
           <div class="label">${ic('clover','width:14px;height:14px;color:var(--green);')}今日のキーワード</div>
@@ -1004,11 +1044,13 @@ function renderHomeView(person){
       <table class="calendar-table">
         <tr><td class="lab">干支</td><td class="val"><span class="tap-link" onclick="showKanshiInfo(${kIdx})">${kanshi}（${kanshiYomi}）</span></td></tr>
         <tr><td class="lab">大明日</td><td class="val"><span class="tap-link" onclick="showDaimyouInfo()">${daimyou ? '該当します✨' : '該当しません'}</span></td></tr>
+        <tr><td class="lab">神吉日</td><td class="val"><span class="tap-link" onclick="showKamiyoshiInfo()">${kamiyoshi ? '該当します✨' : '該当しません'}</span></td></tr>
+        <tr><td class="lab">天恩日</td><td class="val"><span class="tap-link" onclick="showTenonInfo()">${tenon ? '該当します✨' : '該当しません'}</span></td></tr>
         <tr><td class="lab">六曜</td><td class="val">${rokuyo}</td></tr>
         <tr><td class="lab">月相</td><td class="val">${ic('moon','width:14px;height:14px;color:var(--purple);')}${moonName}</td></tr>
       </table>
       <div class="auto-note">この端末の日付に合わせて自動更新します</div>
-      <div class="disclaimer">※干支・大明日・六曜は、旧暦(1900〜2100年、香港天文台のデータに基づく)をもとにした計算式で算出しています。占いは楽しみながら参考にしてくださいね。</div>
+      <div class="disclaimer">※干支・大明日・神吉日・天恩日・六曜は、旧暦(1900〜2100年、香港天文台のデータに基づく)をもとにした計算式で算出しています。占いは楽しみながら参考にしてくださいね。</div>
     </div>
   `;
 }
@@ -1140,6 +1182,8 @@ document.getElementById('infoModalClose').onclick = closeInfoModal;
 document.getElementById('infoModalBg').onclick = (e)=>{ if(e.target.id==='infoModalBg') closeInfoModal(); };
 function showKanshiInfo(kIdx){ const info = kanshiExplain(kIdx); openInfoModal(info.title, info.body); }
 function showDaimyouInfo(){ const info = daimyouExplain(); openInfoModal(info.title, info.body); }
+function showKamiyoshiInfo(){ const info = kamiyoshiExplain(); openInfoModal(info.title, info.body); }
+function showTenonInfo(){ const info = tenonExplain(); openInfoModal(info.title, info.body); }
 
 /* ===== 占いの仕組みそのものの解説(初めて使う人向け) ===== */
 const SYSTEM_INFO = {
