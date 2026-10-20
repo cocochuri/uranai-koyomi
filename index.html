@@ -183,6 +183,10 @@
   .gt-desc{font-size:12.5px; color:var(--text); line-height:1.7; margin-bottom:12px;}
   .gt-badges{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
   .gt-bullets li{background:var(--pink-pale); color:var(--pink-deep);}
+  .doyo-guide{background:var(--gold-bg);border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin:8px 0 13px;}
+  .doyo-guide .doyo-title{font-size:13px;font-weight:800;margin-bottom:6px;color:var(--text);}
+  .doyo-guide p{font-size:12.5px;line-height:1.75;color:var(--text);margin:0;}
+  .doyo-mini{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;background:var(--gold-bg);color:var(--text);margin-left:6px;font-weight:700;}
   .gt-bullets .ic-wrap{color:var(--green);}
   .navgrad-a{stop-color:var(--pink);} .navgrad-b{stop-color:var(--pink-deep);}
   .theme-swatches{display:flex; gap:12px; flex-wrap:wrap; margin:10px 0 4px;}
@@ -793,6 +797,75 @@ function moonPhase(date){
 }
 const MOON_NAME = {new:'新月',young:'三日月',firstq:'上弦の月',waxg:'十三夜月',full:'満月',waning:'十六夜月',lastq:'下弦の月',old:'晦(つごもり)'};
 
+/* ===== 土用（太陽の視黄経による年次自動計算） =====
+ * 太陽黄経が 297/27/117/207 度となる日から、次の
+ * 立春/立夏/立秋/立冬の前日まで。暦日は日本標準時（JST）。
+ * 2026・2027年は国立天文台の公開値を優先。
+ * その他の年は天文学的な近似式で自動推算する。
+ * 境界時刻が深夜に近い年は日付に誤差が生じる可能性がある。
+ */
+const DOYO_OFFICIAL_START = {
+  2026:['2026-01-17','2026-04-17','2026-07-20','2026-10-20'],
+  2027:['2027-01-17','2027-04-17','2027-07-20','2027-10-21']
+};
+const DOYO_OFFICIAL_NEXT = {
+  2026:['2026-02-04','2026-05-05','2026-08-07','2026-11-07'],
+  2027:['2027-02-04','2027-05-06','2027-08-08','2027-11-08']
+};
+const DOYO_SEASONS = [
+  {name:'冬土用',month:1,day:17,startAngle:297,nextAngle:315,nextMonth:2,nextDay:4},
+  {name:'春土用',month:4,day:17,startAngle:27,nextAngle:45,nextMonth:5,nextDay:5},
+  {name:'夏土用',month:7,day:20,startAngle:117,nextAngle:135,nextMonth:8,nextDay:7},
+  {name:'秋土用',month:10,day:20,startAngle:207,nextAngle:225,nextMonth:11,nextDay:7}
+];
+const doyoCache = {};
+function sunApparentLongitude(timeMs){
+  const t=(timeMs/86400000 + 2440587.5 - 2451545.0)/36525;
+  const rad=Math.PI/180;
+  const meanLong=280.46646+t*(36000.76983+0.0003032*t);
+  const meanAnomaly=357.52911+t*(35999.05029-0.0001537*t);
+  const correction=(1.914602-t*(0.004817+0.000014*t))*Math.sin(meanAnomaly*rad)
+    +(0.019993-0.000101*t)*Math.sin(2*meanAnomaly*rad)
+    +0.000289*Math.sin(3*meanAnomaly*rad);
+  const omega=125.04-1934.136*t;
+  const longitude=meanLong+correction-0.00569-0.00478*Math.sin(omega*rad);
+  return (longitude%360+360)%360;
+}
+function solarAngleDateJST(year,month,day,angle){
+  let left=Date.UTC(year,month-1,day-3),right=Date.UTC(year,month-1,day+3);
+  for(let i=0;i<44;i++){
+    const mid=(left+right)/2;
+    const diff=((sunApparentLongitude(mid)-angle+540)%360)-180;
+    if(diff>=0) right=mid; else left=mid;
+  }
+  return new Date(right+9*3600000).toISOString().slice(0,10);
+}
+function getDoyoPeriods(year){
+  if(!doyoCache[year]){
+    doyoCache[year]=DOYO_SEASONS.map((season,index)=>{
+      const start=DOYO_OFFICIAL_START[year]?.[index] ||
+        solarAngleDateJST(year,season.month,season.day,season.startAngle);
+      const next=DOYO_OFFICIAL_NEXT[year]?.[index] ||
+        solarAngleDateJST(year,season.nextMonth,season.nextDay,season.nextAngle);
+      const nextDate=new Date(next+'T00:00:00Z');
+      nextDate.setUTCDate(nextDate.getUTCDate()-1);
+      return {name:season.name,start,end:nextDate.toISOString().slice(0,10)};
+    });
+  }
+  return doyoCache[year];
+}
+function getDoyo(date){
+  const year=date.getFullYear();
+  const key=year+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');
+  return getDoyoPeriods(year).find(period=>key>=period.start && key<=period.end) || null;
+}
+function showDoyoInfo(){
+  openInfoModal('土用（どよう）とは？',
+    '土用は立春・立夏・立秋・立冬の直前に設けられる季節の変わり目の期間です。<br><br>'+
+    '昔から土を動かす作業や新しい大事業を慎むという言い伝えがあります。ただし、すべての行動が悪い日という意味ではありません。<br><br>'+
+    'みやき暦では「無理に増やさず、整理・見直し・準備を優先する」ための参考情報として表示します。科学的に行動の吉凶を予測するものではありません。<br><br>'+
+    '※2026・2027年は国立天文台の公表暦を使用し、以降の年は太陽黄経の近似計算で推算します。境界が深夜の年は日付がずれる可能性があります。土用入り当日を暦日単位で表示します。');
+}
 /* ===== 描画 ===== */
 const dateObj = new Date();
 const dateKey = dateObj.getFullYear()+'-'+(dateObj.getMonth()+1)+'-'+dateObj.getDate();
@@ -889,6 +962,7 @@ function renderHomeView(person){
   const gT = seededPick(dayRng, THEMES);
   const gTIdx = THEMES.indexOf(gT);
   const gBullets = ACTIONS[gTIdx];
+  const doyo = getDoyo(dateObj);
 
   const num = calcNumerology(person.birth, dateObj);
   const birthMaya = mayaFromKin(calcKin(person.birth));
@@ -927,12 +1001,14 @@ function renderHomeView(person){
       <div class="gt-date">${dateObj.getMonth()+1}/${dateObj.getDate()}(${WEEK[dateObj.getDay()]})</div>
       <div class="gt-headline">${gT.theme}</div>
       <div class="gt-desc">${gT.desc}</div>
+      ${doyo ? `<div class="doyo-guide"><div class="doyo-title">🍂 ${doyo.name}の期間（${doyo.start.slice(5).replace('-','/')}〜${doyo.end.slice(5).replace('-','/')}）</div><p>季節の切り替わり。新しいことを全部避ける必要はありませんが、大きな決断は一度確認を。整理・調整・準備を進める日にしてみてね。</p></div>` : ''}
       <div class="gt-badges">
         <span class="mb tap-link" onclick="showKanshiInfo(${kIdx})">干支 ${kanshi}（${kanshiYomi}）</span>
         ${daimyou ? '<span class="mb daimyou tap-link" onclick="showDaimyouInfo()">'+ic('sparkle','width:11px;height:11px;')+'大明日</span>' : ''}
         ${kamiyoshi ? '<span class="mb daimyou tap-link" onclick="showKamiyoshiInfo()">'+ic('sparkle','width:11px;height:11px;')+'神吉日</span>' : ''}
         ${tenon ? '<span class="mb daimyou tap-link" onclick="showTenonInfo()">'+ic('sparkle','width:11px;height:11px;')+'天恩日</span>' : ''}
         <span class="mb">六曜 ${rokuyo}</span>
+        ${doyo ? '<span class="mb tap-link" onclick="showDoyoInfo()">'+doyo.name+' ⓘ</span>' : ''}
       </div>
       <ul class="hero-bullets gt-bullets">
         <li>${ic('clover','width:14px;height:14px;')}${gBullets[0]}</li>
@@ -1050,7 +1126,7 @@ function renderHomeView(person){
         <tr><td class="lab">月相</td><td class="val">${ic('moon','width:14px;height:14px;color:var(--purple);')}${moonName}</td></tr>
       </table>
       <div class="auto-note">この端末の日付に合わせて自動更新します</div>
-      <div class="disclaimer">※干支・大明日・神吉日・天恩日・六曜は、旧暦(1900〜2100年、香港天文台のデータに基づく)をもとにした計算式で算出しています。占いは楽しみながら参考にしてくださいね。</div>
+      <div class="disclaimer">※土用は毎年自動計算（2026・2027年は公表暦、以降は近似推算）しています。干支・大明日・神吉日・天恩日・六曜は、旧暦(1900〜2100年、香港天文台のデータに基づく)をもとにした計算式で算出しています。占いは楽しみながら参考にしてくださいね。</div>
     </div>
   `;
 }
@@ -1067,6 +1143,7 @@ function renderCalendarView(person){
     const rng = hashStr(seedStr);
     const t = seededPick(rng, THEMES);
     const isToday = i===0;
+    const calDoyo = getDoyo(d);
     rows += `
       <div class="cal-row${isToday ? ' today':''}">
         <div class="cal-date">
@@ -1074,7 +1151,7 @@ function renderCalendarView(person){
           <div class="cd-wd">(${WEEK[d.getDay()]})</div>
         </div>
         <div class="cal-body">
-          <div class="cal-kw">${t.kw}</div>
+          <div class="cal-kw">${t.kw}${calDoyo ? `<span class="doyo-mini">${calDoyo.name}</span>` : ''}</div>
           <div class="cal-line">${t.line}</div>
         </div>
         ${isToday ? '<span class="cal-today-tag">Today</span>' : ''}
