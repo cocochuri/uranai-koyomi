@@ -300,6 +300,20 @@
   .empty-state h2{color:var(--pink-deep); font-size:18px; margin:10px 0 6px;}
   .empty-state p{color:var(--sub); font-size:13px; line-height:1.7;}
 </style>
+<script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+.note-export-bar{display:flex;gap:8px;align-items:center;justify-content:center;margin:0 0 14px}
+.note-export-btn{background:#fff;color:var(--pink-deep);border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;font:800 12px 'M PLUS Rounded 1c',sans-serif;box-shadow:var(--shadow);cursor:pointer}
+.note-export-status{font-size:11px;color:var(--sub);text-align:center;margin:-7px 0 12px}
+.note-preview-overlay{position:fixed;inset:0;z-index:100;background:rgba(40,25,35,.82);overflow:auto;padding:20px 12px 55px;text-align:center}
+.note-preview-panel{max-width:520px;margin:auto;background:white;padding:16px;border-radius:20px}
+.note-preview-panel img{display:block;width:100%;height:auto;margin:12px 0;border-radius:6px}
+.note-preview-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.note-preview-actions button,.note-preview-actions a{font:700 13px 'M PLUS Rounded 1c',sans-serif;border:0;border-radius:20px;background:var(--pink-deep);color:white;padding:11px 14px;text-decoration:none}
+.note-capture-root{position:fixed;top:0;left:-10000px;width:430px;z-index:-1;pointer-events:none}
+.note-capture-sheet{width:430px;padding:15px 14px 20px;background-color:var(--bg);background-image:repeating-linear-gradient(0deg,rgba(var(--pink-rgb),.16) 0 12px,transparent 12px 26px),repeating-linear-gradient(90deg,rgba(var(--pink-rgb),.16) 0 12px,transparent 12px 26px);background-blend-mode:multiply;color:var(--text);font-family:'M PLUS Rounded 1c','Hiragino Maru Gothic ProN',sans-serif}
+.note-capture-sheet .topbar{padding-top:10px}.note-capture-sheet .general-today{margin-bottom:0}.note-capture-sheet .section-title{margin-top:6px}.note-capture-sheet .card{margin-bottom:0}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -325,6 +339,7 @@
     <div class="avatar" id="avatarBox"></div>
   </div>
 
+  <div id="noteExportBar" class="note-export-bar" style="display:none"><button type="button" class="note-export-btn" onclick="makeNoteImages()">📷 note用画像を2枚作る</button></div>
   <div id="content"></div>
 </div>
 </div>
@@ -914,7 +929,8 @@ document.querySelectorAll('.nav-btn').forEach(btn=>{
     if(tab==='settings'){ openSettingsModal(); return; }
     if(tab==='dog'){
       const people = loadPeople();
-      if(people.length===0){ showToast('先に占う人を登録してください'); return; }
+      document.getElementById('noteExportBar').style.display = people.length && currentView==='home' ? 'flex' : 'none';
+  if(people.length===0){ showToast('先に占う人を登録してください'); return; }
       document.getElementById('avatarInput').click();
       return;
     }
@@ -1363,6 +1379,65 @@ document.getElementById('btnDelete').onclick = ()=>{
   closeModal();
   render();
 };
+
+
+// note用画像は表示中のカードを複製して描画するため、占い内容やデザインは変更しません。
+let noteImageBusy = false;
+async function makeNoteImages(){
+  if(noteImageBusy) return;
+  if(currentView!=='home' || !document.querySelector('.general-today')) { showToast('今日の暦を開いてね'); return; }
+  if(typeof html2canvas!=='function'){ alert('画像作成ライブラリを読み込めませんでした。通信を確認して再度お試しください。'); return; }
+  noteImageBusy=true;
+  const btn=document.querySelector('.note-export-btn');
+  btn.disabled=true; btn.textContent='画像を作成中…';
+  const root=document.createElement('div'); root.className='note-capture-root';
+  const originals=[document.querySelector('.general-today'),document.querySelector('.section-title:last-of-type')];
+  try {
+    const header=document.querySelector('.topbar');
+    const general=document.querySelector('.general-today');
+    const allTitles=Array.from(document.querySelectorAll('#content .section-title'));
+    const calTitle=allTitles.find(e=>e.textContent.includes('今日の暦'));
+    const calCard=calTitle && calTitle.nextElementSibling;
+    if(!header||!general||!calTitle||!calCard) throw new Error('画像に必要な表示が見つかりません');
+    const first=document.createElement('div'); first.className='note-capture-sheet';
+    first.append(header.cloneNode(true),general.cloneNode(true));
+    const second=document.createElement('div'); second.className='note-capture-sheet';
+    second.append(calTitle.cloneNode(true),calCard.cloneNode(true));
+    root.append(first,second); document.body.appendChild(root);
+    await document.fonts.ready;
+    const urls=[];
+    for(const node of [first,second]){
+      const canvas=await html2canvas(node,{backgroundColor:null,scale:2,useCORS:true,logging:false,scrollX:0,scrollY:0,width:430,windowWidth:430,onclone:doc=>{
+        const r=doc.querySelector('.note-capture-root');if(r){r.style.left='0';r.style.top='0';r.style.zIndex='1';}
+      }});
+      urls.push(canvas.toDataURL('image/png'));
+    }
+    showNotePreview(urls);
+  } catch(err){ console.error('note image export:',err); alert('画像作成に失敗しました。再読み込み後にもう一度試してね。'); }
+  finally {root.remove();noteImageBusy=false;btn.disabled=false;btn.textContent='📷 note用画像を2枚作る';}
+}
+function showNotePreview(urls){
+  document.getElementById('notePreviewOverlay')?.remove();
+  const overlay=document.createElement('div');overlay.className='note-preview-overlay';overlay.id='notePreviewOverlay';
+  const panel=document.createElement('div');panel.className='note-preview-panel';
+  const title=document.createElement('h3');title.textContent='note掲載用の画像ができたよ ♡';panel.appendChild(title);
+  const hint=document.createElement('p');hint.style.cssText='font-size:12px;line-height:1.7;color:#806e77';hint.textContent='iPhoneでは画像を長押しして「写真に保存」、または「画像を保存」を選んでね。';panel.appendChild(hint);
+  urls.forEach((url,i)=>{
+    const label=document.createElement('p');label.textContent=i===0?'① みやき暦＋今日の総合運':'② 今日の暦';label.style.fontWeight='bold';panel.appendChild(label);
+    const img=document.createElement('img');img.src=url;img.alt=label.textContent;panel.appendChild(img);
+    const actions=document.createElement('div');actions.className='note-preview-actions';
+    const save=document.createElement('a');save.href=url;save.download=`miyaki-note-${i+1}.png`;save.textContent='画像を保存';actions.appendChild(save);
+    const share=document.createElement('button');share.textContent='共有';share.onclick=async()=>{
+      try{
+        const blob=await(await fetch(url)).blob();const file=new File([blob],`miyaki-note-${i+1}.png`,{type:'image/png'});
+        if(navigator.canShare?.({files:[file]})) await navigator.share({files:[file]});
+        else alert('この端末では画像を長押しして保存してね。');
+      }catch(e){if(e.name!=='AbortError')alert('画像を長押しして保存してね。');}
+    };actions.appendChild(share);panel.appendChild(actions);
+  });
+  const close=document.createElement('button');close.textContent='閉じる';close.className='note-export-btn';close.style.marginTop='18px';close.onclick=()=>overlay.remove();panel.appendChild(close);
+  overlay.appendChild(panel);document.body.appendChild(overlay);overlay.scrollTop=0;
+}
 
 render();
 </script>
