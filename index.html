@@ -703,27 +703,35 @@ function monthDays(y,m){
   return (LUNAR_INFO[y-1900] & (0x10000>>m)) ? 30 : 29;
 }
 function solarToLunarMD(date){
-  const y0=date.getFullYear(), m0=date.getMonth()+1, d0=date.getDate();
-  if(y0<1900||y0>2100) return null;
-  if(y0===1900 && m0===1 && d0<31) return null;
-  let offset = Math.round((Date.UTC(y0,m0-1,d0) - Date.UTC(1900,0,31))/86400000);
-  let i, temp=0;
-  for(i=1900;i<2101 && offset>0;i++){ temp = lYearDays(i); offset -= temp; }
-  if(offset<0){ offset += temp; i--; }
-  const year = i;
-  const leap = leapMonthOf(i);
-  let isLeap = false;
-  for(i=1;i<13 && offset>0;i++){
-    if(leap>0 && i===(leap+1) && !isLeap){ i--; isLeap=true; temp=leapDays(year); }
-    else{ temp = monthDays(year,i); }
-    if(isLeap && i===(leap+1)){ isLeap=false; }
-    offset -= temp;
+  const y0=date.getFullYear(), m0=date.getMonth(), d0=date.getDate();
+  if(y0<1900 || y0>2099 || (y0===1900 && m0===0 && d0<31)) return null;
+  // 日本の旧暦と中国暦で新月の暦日が異なる場合がある。
+  // 2026年10月は日本の公表暦（10/11=旧暦9/1）に合わせる。
+  // この補正は2026年10月・11月初旬に限定する。
+  const stamp=Date.UTC(y0,m0,d0);
+  if(stamp>=Date.UTC(2026,9,1) && stamp<=Date.UTC(2026,9,10))
+    return {year:2026,month:8,day:d0+20,isLeap:false};
+  if(stamp>=Date.UTC(2026,9,11) && stamp<=Date.UTC(2026,10,8))
+    return {year:2026,month:9,day:Math.round((stamp-Date.UTC(2026,9,11))/86400000)+1,isLeap:false};
+  let offset=Math.round((Date.UTC(y0,m0,d0)-Date.UTC(1900,0,31))/86400000);
+  let year=1900;
+  while(year<=2099 && offset>=lYearDays(year)){
+    offset-=lYearDays(year);
+    year++;
   }
-  if(offset===0 && leap>0 && i===leap+1){
-    if(isLeap){ isLeap=false; } else { isLeap=true; i--; }
+  if(year>2099) return null;
+  const leap=leapMonthOf(year);
+  for(let month=1;month<=12;month++){
+    const normalDays=monthDays(year,month);
+    if(offset<normalDays) return {year,month,day:offset+1,isLeap:false};
+    offset-=normalDays;
+    if(leap===month){
+      const extraDays=leapDays(year);
+      if(offset<extraDays) return {year,month,day:offset+1,isLeap:true};
+      offset-=extraDays;
+    }
   }
-  if(offset<0){ offset += temp; i--; }
-  return { year, month:i, day: offset+1, isLeap };
+  return null;
 }
 function calcRokuyo(date){
   const lunar = solarToLunarMD(date);
@@ -841,7 +849,7 @@ function moonPhase(date){
   if(age<24.05) return 'lastq';
   return 'old';
 }
-const MOON_NAME = {new:'新月',young:'三日月',firstq:'上弦の月',waxg:'十三夜月',full:'満月',waning:'十六夜月',lastq:'下弦の月',old:'晦(つごもり)'};
+const MOON_NAME = {new:'新月',young:'三日月',firstq:'上弦の月',waxg:'満ちていく月',full:'満月',waning:'十六夜月',lastq:'下弦の月',old:'晦(つごもり)'};
 
 /* ===== 土用（太陽の視黄経による年次自動計算） =====
  * 太陽黄経が 297/27/117/207 度となる日から、次の
@@ -1343,13 +1351,13 @@ function buildCalendarArticleText(){
   const moonName = MOON_NAME[moonPhase(day)];
   const month = day.getMonth()+1, date=day.getDate();
   const sections = [
-    `🔮 今日の暦をちょこっと解説｜${month}/${date}`,
+    `🔮 今日の暦をちょこっと解説｜${day.getFullYear()}/${month}/${date}`,
     `【干支】${kanshi}（${yomi}）\n十干と十二支を組み合わせた、その日の日干支です。60日で一巡します。`,
-    `【大明日】${d?'該当します':'該当しません'}\n天地が明るく照らされるとされる、伝統的な吉日のひとつです。`,
-    `【神吉日】${k?'該当します':'該当しません'}\n神事やお参りなどと結び付けて語られる暦注です。`,
-    `【天恩日】${t?'該当します':'該当しません'}\n天の恩恵を受けるとされる吉日です。`,
+    ...(d ? ['【大明日】\n天地が明るく照らされるとされる、伝統的な吉日のひとつです。'] : []),
+    ...(k ? ['【神吉日】\n神事やお参りなどと結び付けて語られる暦注です。'] : []),
+    ...(t ? ['【天恩日】\n天の恩恵を受けるとされる吉日です。'] : []),
     `【六曜】${r}\n${({'先勝':'午前が吉、午後は控えめとされる日です。','友引':'慶事に向くとされ、弔事では避ける慣習があります。','先負':'午前は控えめに、午後は吉とされる日です。','仏滅':'六曜では一般に凶日とされます。','大安':'六曜では一般に吉日とされます。','赤口':'正午ごろを除いて慎重に過ごすとされる日です。'})[r]||'六曜は民間で用いられてきた暦の目安です。'}`,
-    `【月相】${moonName}\n月の満ち欠けの段階を表します。`,
+    `【月相】${moonName}\n${moonPhase(day)==='waxg'?'上弦を過ぎ、満月に向かって少しずつ丸くなっていく月です。旧暦9月13日の「十三夜」とは区別しています。':'月の満ち欠けの段階を表します。'}`,
     doyo
       ? `【土用】${doyo.name}（${doyo.start.slice(5).replace('-','/')}〜${doyo.end.slice(5).replace('-','/')}）\n土用は季節の変わり目に設けられた伝統的な暦の期間です。準備や見直しを大切にする考え方がありますが、何も始めてはいけないという意味ではありません。`
       : '【土用】該当しません\n現在は土用の期間外です。土用は季節の変わり目に設けられた伝統的な暦の期間です。',
