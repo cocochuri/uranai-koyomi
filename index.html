@@ -702,17 +702,9 @@ function monthDays(y,m){
   if(m>12||m<1) return -1;
   return (LUNAR_INFO[y-1900] & (0x10000>>m)) ? 30 : 29;
 }
-function solarToLunarMD(date){
+function legacySolarToLunarMD(date){
   const y0=date.getFullYear(), m0=date.getMonth(), d0=date.getDate();
   if(y0<1900 || y0>2099 || (y0===1900 && m0===0 && d0<31)) return null;
-  // 日本の旧暦と中国暦で新月の暦日が異なる場合がある。
-  // 2026年10月は日本の公表暦（10/11=旧暦9/1）に合わせる。
-  // この補正は2026年10月・11月初旬に限定する。
-  const stamp=Date.UTC(y0,m0,d0);
-  if(stamp>=Date.UTC(2026,9,1) && stamp<=Date.UTC(2026,9,10))
-    return {year:2026,month:8,day:d0+20,isLeap:false};
-  if(stamp>=Date.UTC(2026,9,11) && stamp<=Date.UTC(2026,10,8))
-    return {year:2026,month:9,day:Math.round((stamp-Date.UTC(2026,9,11))/86400000)+1,isLeap:false};
   let offset=Math.round((Date.UTC(y0,m0,d0)-Date.UTC(1900,0,31))/86400000);
   let year=1900;
   while(year<=2099 && offset>=lYearDays(year)){
@@ -733,6 +725,25 @@ function solarToLunarMD(date){
   }
   return null;
 }
+// 国立天文台「暦要項」朔の日付（日本標準時）。2026・2027年を対象に検証。
+const NAOJ_NEW_MOON_DATES = ["2025-12-20", "2026-01-19", "2026-02-17", "2026-03-19", "2026-04-17", "2026-05-17", "2026-06-15", "2026-07-14", "2026-08-13", "2026-09-11", "2026-10-11", "2026-11-09", "2026-12-09", "2027-01-08", "2027-02-07", "2027-03-08", "2027-04-07", "2027-05-06", "2027-06-05", "2027-07-04", "2027-08-02", "2027-09-01", "2027-09-30", "2027-10-29", "2027-11-28", "2027-12-28", "2028-01-26"];
+function solarToLunarMD(date){
+  const y=date.getFullYear();
+  if(y!==2026 && y!==2027) return legacySolarToLunarMD(date);
+  const key=ymdJST(date);
+  const i=NAOJ_NEW_MOON_DATES.findIndex((v,j)=>v<=key && (j===NAOJ_NEW_MOON_DATES.length-1 || NAOJ_NEW_MOON_DATES[j+1]>key));
+  if(i<0) return null;
+  const start=NAOJ_NEW_MOON_DATES[i];
+  const day=Math.round((Date.parse(key+'T00:00:00Z')-Date.parse(start+'T00:00:00Z'))/86400000)+1;
+  // 月番号・閏月の判定は従来の暦表を月中で参照（境界日を避ける）。
+  // 日本の旧暦と中国暦で閏月番号が異なる場合は別途照合が必要。
+  const sample=new Date(start+'T12:00:00Z');
+  sample.setUTCDate(sample.getUTCDate()+10);
+  const monthInfo=legacySolarToLunarMD(new Date(sample.getUTCFullYear(),sample.getUTCMonth(),sample.getUTCDate()));
+  if(!monthInfo) return null;
+  return {year:monthInfo.year,month:monthInfo.month,day,isLeap:monthInfo.isLeap};
+}
+function ymdJST(date){return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0');}
 function calcRokuyo(date){
   const lunar = solarToLunarMD(date);
   if(!lunar) return null;
@@ -836,10 +847,25 @@ function tenonExplain(){
   return { title: '天恩日（てんおんにち）', body };
 }
 function moonPhase(date){
-  const synodic = 29.53058867;
-  const ref = Date.UTC(2000,0,6,18,14)/86400000;
-  let age = (dayCount(date) - ref) % synodic;
-  if(age<0) age += synodic;
+  const key=ymdJST(date);
+  if(date.getFullYear()===2026 || date.getFullYear()===2027){
+    const idx=NAOJ_NEW_MOON_DATES.findIndex((v,j)=>v<=key && (j===NAOJ_NEW_MOON_DATES.length-1 || NAOJ_NEW_MOON_DATES[j+1]>key));
+    if(idx>=0){
+      const age=Math.round((Date.parse(key+'T00:00:00Z')-Date.parse(NAOJ_NEW_MOON_DATES[idx]+'T00:00:00Z'))/86400000);
+      if(age<=1) return 'new';
+      if(age<=5) return 'young';
+      if(age<=8) return 'firstq';
+      if(age<=12) return 'waxg';
+      if(age<=16) return 'full';
+      if(age<=20) return 'waning';
+      if(age<=24) return 'lastq';
+      return 'old';
+    }
+  }
+  const synodic=29.53058867;
+  const ref=Date.UTC(2000,0,6,18,14)/86400000;
+  let age=(dayCount(date)-ref)%synodic;
+  if(age<0) age+=synodic;
   if(age<1.85) return 'new';
   if(age<5.55) return 'young';
   if(age<9.25) return 'firstq';
