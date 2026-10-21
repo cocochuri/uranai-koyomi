@@ -110,7 +110,13 @@
   .keyword-box{background:var(--pink-pale); border-radius:18px; padding:16px; text-align:center; border:1px solid var(--line);}
   .keyword-box .label{font-size:11.5px; color:var(--pink-deep); font-weight:800; margin-bottom:6px; display:flex; align-items:center; justify-content:center; gap:5px;}
   .keyword-box .label .ic-wrap{width:14px; height:14px; color:var(--green);}
-  .keyword-box .kw{font-size:20px; font-weight:800; color:var(--pink-deep); letter-spacing:.5px;}
+  .keyword-box .kw{font-size:clamp(13px,3.7vw,18px); font-weight:800; color:var(--pink-deep); letter-spacing:0; line-height:1.6; overflow-wrap:anywhere; word-break:normal;}
+  .keyword-box .kw .kw-part{display:inline-block; white-space:nowrap;}
+  .keyword-box .kw .kw-sep{display:inline-block; margin:0 .12em;}
+  .keyword-box .label{flex-wrap:wrap; line-height:1.4;}
+  .doyo-adjust{margin:12px 0; padding:12px 14px; border-radius:14px; background:#fff7e9; color:#6a4c36; line-height:1.7; font-size:12.5px; border:1px solid #f1ddc0;}
+  .hero-advice .doyo-adjust{background:rgba(255,255,255,.17);color:#fff;border-color:rgba(255,255,255,.28);}
+  .doyo-adjust strong{display:block; margin-bottom:4px;}
   .kw-heart{font-size:16px; color:var(--pink); margin-left:4px; display:inline-block; transform:rotate(-6deg);}
   .lp-heart{font-size:17px; color:var(--pink); opacity:.75;}
 
@@ -944,6 +950,39 @@ function render(){
   renderHomeView(person);
 }
 
+/* 土用は各占術の算出結果を変えず、行動アドバイスだけを調整する。 */
+function doyoGuidance(themeIndex){
+  const messages = [
+    '今あるものを整理する力を生かして、区切りをつける準備をしよう。',
+    '挑戦の気持ちは大切に。今日は情報収集や試作など、引き返せる小さな一歩から。',
+    '休息と生活環境の見直しを優先して、次の季節に備えよう。',
+    'ひらめきは記録しよう。大きな実行は条件とリスクを確認してから。',
+    '人とのご縁を大切にしつつ、約束や契約は内容を丁寧に確認しよう。',
+    '手放したいものを整理する好機。急いで結論を出す必要はないよ。',
+    '計画の下準備や小さな実験を進め、次の段階に備えよう。',
+    '地道な見直しやメンテナンスが、後の安心につながるよ。',
+    '言葉にすることは大切。重要な発表や決断は一度読み返して。',
+    '急いで流れを変えず、今の状況を確かめながら調整しよう。'
+  ];
+  return messages[themeIndex] || '大きな決断は条件を確認し、整える時間を大切にしよう。';
+}
+function doyoActionBullets(index, original){
+  if(index===1) return ['やりたいことの情報収集','小さく試して手応えを確認','大きな決断は条件を再点検'];
+  if(index===3) return ['ひらめきをメモに残す','試すなら小さな範囲で','本格始動の前に準備'];
+  if(index===6) return ['新しい学びの下調べ','計画と手順を整える','小さく試してみる'];
+  return original;
+}
+function doyoKeywordHTML(keyword){
+  return keyword.split('・').map(part=>'<span class="kw-part">'+part+'</span>').join('<span class="kw-sep">・</span>');
+}
+function doyoDomainNotes(){
+  return {
+    work:'大きな新規案件は条件を確認し、まずは試作・準備から。',
+    human:'大切な約束は、相手と認識をすり合わせてから。',
+    health:'疲れを感じたら無理せず、生活リズムを整えて。',
+    money:'高額な購入や契約は、予算と条件を再確認して。'
+  };
+}
 function renderHomeView(person){
   const content = document.getElementById('content');
   const seedStr = person.name + '_' + person.birth + '_' + dateKey;
@@ -961,8 +1000,13 @@ function renderHomeView(person){
   const dayRng = hashStr('everyone_'+dateKey);
   const gT = seededPick(dayRng, THEMES);
   const gTIdx = THEMES.indexOf(gT);
-  const gBullets = ACTIONS[gTIdx];
   const doyo = getDoyo(dateObj);
+  const gBullets = doyo ? doyoActionBullets(gTIdx, ACTIONS[gTIdx]) : ACTIONS[gTIdx];
+  const displayBullets = doyo ? doyoActionBullets(tIdx, bullets) : bullets;
+  const doyoNotes = doyo ? doyoDomainNotes() : null;
+  const doyoLead = doyo ? `<div class="doyo-adjust"><strong>${doyo.name}を踏まえた今日の過ごし方</strong>${doyoGuidance(tIdx)}</div>` : '';
+  const doyoGlobal = doyo ? `<div class="doyo-adjust"><strong>今日のテーマ × ${doyo.name}</strong>${doyoGuidance(gTIdx)}</div>` : '';
+  const domainNote = (kind) => doyoNotes ? `<div class="doyo-adjust" style="margin:8px 0 0;padding:8px 10px;"><strong>${doyo.name}の補足</strong>${doyoNotes[kind]}</div>` : '';
 
   const num = calcNumerology(person.birth, dateObj);
   const birthMaya = mayaFromKin(calcKin(person.birth));
@@ -1001,6 +1045,7 @@ function renderHomeView(person){
       <div class="gt-date">${dateObj.getMonth()+1}/${dateObj.getDate()}(${WEEK[dateObj.getDay()]})</div>
       <div class="gt-headline">${gT.theme}</div>
       <div class="gt-desc">${gT.desc}</div>
+      ${doyoGlobal}
       ${doyo ? `<div class="doyo-guide"><div class="doyo-title">🍂 ${doyo.name}の期間（${doyo.start.slice(5).replace('-','/')}〜${doyo.end.slice(5).replace('-','/')}）</div><p>季節の切り替わり。新しいことを全部避ける必要はありませんが、大きな決断は一度確認を。整理・調整・準備を進める日にしてみてね。</p></div>` : ''}
       <div class="gt-badges">
         <span class="mb tap-link" onclick="showKanshiInfo(${kIdx})">干支 ${kanshi}（${kanshiYomi}）</span>
@@ -1023,10 +1068,11 @@ function renderHomeView(person){
       <span class="heart-deco op1">♡</span>
       <div class="hero-date">深掘ると…${dateObj.getMonth()+1}/${dateObj.getDate()}(${WEEK[dateObj.getDay()]}) ${person.name}さんはこんな日</div>
       <div class="hero-headline">${t.theme}</div>
+      ${doyoLead}
       <ul class="hero-bullets">
-        <li>${ic('clover','width:14px;height:14px;')}${bullets[0]}</li>
-        <li>${ic('clover','width:14px;height:14px;')}${bullets[1]}</li>
-        <li>${ic('clover','width:14px;height:14px;')}${bullets[2]}</li>
+        <li>${ic('clover','width:14px;height:14px;')}${displayBullets[0]}</li>
+        <li>${ic('clover','width:14px;height:14px;')}${displayBullets[1]}</li>
+        <li>${ic('clover','width:14px;height:14px;')}${displayBullets[2]}</li>
       </ul>
       <div class="hero-sub">${overall.replace(/\n/g,'<br><br>')}</div>
       <span class="heart-deco op2">♡</span>
@@ -1038,7 +1084,7 @@ function renderHomeView(person){
       <div class="card">
         <span class="badge">Today</span>
         <div class="today-date">${dateObj.getMonth()+1}/${dateObj.getDate()}<span>(${WEEK[dateObj.getDay()]})</span></div>
-        <div class="today-line"><span>${t.line}</span>${ic('paw','width:16px;height:16px;color:var(--pink);')}</div>
+        <div class="today-line"><span>${doyo ? doyoGuidance(tIdx) : t.line}</span>${ic('paw','width:16px;height:16px;color:var(--pink);')}</div>
       </div>
       <div class="card">
         <span class="badge">今日の暦</span>
@@ -1052,7 +1098,7 @@ function renderHomeView(person){
         </div>
         <div class="keyword-box">
           <div class="label">${ic('clover','width:14px;height:14px;color:var(--green);')}今日のキーワード</div>
-          <div class="kw">${t.kw}<span class="kw-heart">♡</span></div>
+          <div class="kw">${doyoKeywordHTML(t.kw)}<span class="kw-heart">♡</span></div>
         </div>
       </div>
     </div>
@@ -1075,6 +1121,7 @@ function renderHomeView(person){
         <span class="badge">今日のテーマ</span>
         <div style="font-size:15px; font-weight:800; color:var(--pink-deep); line-height:1.4; margin-bottom:6px;">${t.theme}</div>
         <div style="font-size:12px; line-height:1.6; color:var(--text);">${t.desc}</div>
+        ${doyoLead}
       </div>
     </div>
 
@@ -1096,10 +1143,10 @@ function renderHomeView(person){
     <div class="disclaimer" style="margin:-4px 8px 4px;">※マヤ暦(ツォルキン暦)は1987年8月16日を起点とした、九星気学は立春を2/4固定としたオリジナル簡易計算です。流派・サイトによって解釈が異なる場合があります。</div>
 
     <div class="theme-grid">
-      <div class="tcard work"><div class="th">${ic('briefcase')}仕事・学び</div>${work}</div>
-      <div class="tcard human"><div class="th">${ic('handshake')}対人</div>${human}</div>
-      <div class="tcard health"><div class="th">${ic('leaf')}健康・休むサイン</div>${health}</div>
-      <div class="tcard money"><div class="th">${ic('moneybag')}お金</div>${money}</div>
+      <div class="tcard work"><div class="th">${ic('briefcase')}仕事・学び</div>${work}${domainNote('work')}</div>
+      <div class="tcard human"><div class="th">${ic('handshake')}対人</div>${human}${domainNote('human')}</div>
+      <div class="tcard health"><div class="th">${ic('leaf')}健康・休むサイン</div>${health}${domainNote('health')}</div>
+      <div class="tcard money"><div class="th">${ic('moneybag')}お金</div>${money}${domainNote('money')}</div>
     </div>
 
     <div class="divider-heart">${ic('heartOutline')}</div>
