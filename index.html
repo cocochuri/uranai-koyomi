@@ -192,6 +192,7 @@
   .doyo-guide{background:var(--gold-bg);border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin:8px 0 13px;}
   .doyo-guide .doyo-title{font-size:13px;font-weight:800;margin-bottom:6px;color:var(--text);}
   .doyo-guide p{font-size:12.5px;line-height:1.75;color:var(--text);margin:0;}
+  .doyo-more{border:0;background:transparent;color:var(--pink-deep);font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer;margin-left:5px;padding:3px;}
   .doyo-mini{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;background:var(--gold-bg);color:var(--text);margin-left:6px;font-weight:700;}
   .gt-bullets .ic-wrap{color:var(--green);}
   .navgrad-a{stop-color:var(--pink);} .navgrad-b{stop-color:var(--pink-deep);}
@@ -1005,7 +1006,9 @@ function renderHomeView(person){
   const displayBullets = doyo ? doyoActionBullets(tIdx, bullets) : bullets;
   const doyoNotes = doyo ? doyoDomainNotes() : null;
   const doyoLead = doyo ? `<div class="doyo-adjust"><strong>${doyo.name}を踏まえた今日の過ごし方</strong>${doyoGuidance(tIdx)}</div>` : '';
-  const doyoGlobal = doyo ? `<div class="doyo-adjust"><strong>今日のテーマ × ${doyo.name}</strong>${doyoGuidance(gTIdx)}</div>` : '';
+  const doyoGlobal = ''; // トップではテーマ直下に統合文を表示するため重複させない
+  const globalDesc = doyo ? doyoGuidance(gTIdx) : gT.desc;
+  const personalDesc = doyo ? doyoGuidance(tIdx) : t.desc;
   const domainNote = (kind) => doyoNotes ? `<div class="doyo-adjust" style="margin:8px 0 0;padding:8px 10px;"><strong>${doyo.name}の補足</strong>${doyoNotes[kind]}</div>` : '';
 
   const num = calcNumerology(person.birth, dateObj);
@@ -1033,7 +1036,7 @@ function renderHomeView(person){
     starTrait: NINE_STAR_TRAIT[starNum]
   };
 
-  const overall = `今日のテーマは「${t.theme}」。${t.desc}\n`+
+  const overall = `今日のテーマは「${t.theme}」。${personalDesc}\n`+
     `${person.name}さんの数秘術的な強みは「${LIFEPATH_MEANING[num.lifePath]}」。ここを意識すると流れに乗りやすい日です。\n`+
     `九星気学では${starName}生まれの${person.name}さんは、もともと${NINE_STAR_TRAIT[starNum]}。\n`+
     `マヤ暦では今日「${todayMaya.seal.trait}」のエネルギーが流れているので、${todayMaya.tone.trait}を意識してみて。\n`+
@@ -1044,9 +1047,8 @@ function renderHomeView(person){
       <div class="gt-label">${ic('sparkle','width:14px;height:14px;color:var(--gold);')}今日は全体的にこんな日</div>
       <div class="gt-date">${dateObj.getMonth()+1}/${dateObj.getDate()}(${WEEK[dateObj.getDay()]})</div>
       <div class="gt-headline">${gT.theme}</div>
-      <div class="gt-desc">${gT.desc}</div>
-      ${doyoGlobal}
-      ${doyo ? `<div class="doyo-guide"><div class="doyo-title">🍂 ${doyo.name}の期間（${doyo.start.slice(5).replace('-','/')}〜${doyo.end.slice(5).replace('-','/')}）</div><p>季節の切り替わり。新しいことを全部避ける必要はありませんが、大きな決断は一度確認を。整理・調整・準備を進める日にしてみてね。</p></div>` : ''}
+      <div class="gt-desc">${globalDesc}</div>
+      ${doyo ? `<div class="doyo-guide"><div class="doyo-title">🍂 ${doyo.name}の期間（${doyo.start.slice(5).replace('-','/')}〜${doyo.end.slice(5).replace('-','/')}）</div><p>季節の切り替わり。土用は伝統的な暦注のひとつです。無理せず、準備や見直しを大切に。<button type="button" class="doyo-more" onclick="showDoyoInfo()">土用とは？ ⓘ</button></p></div>` : ''}
       <div class="gt-badges">
         <span class="mb tap-link" onclick="showKanshiInfo(${kIdx})">干支 ${kanshi}（${kanshiYomi}）</span>
         ${daimyou ? '<span class="mb daimyou tap-link" onclick="showDaimyouInfo()">'+ic('sparkle','width:11px;height:11px;')+'大明日</span>' : ''}
@@ -1068,7 +1070,6 @@ function renderHomeView(person){
       <span class="heart-deco op1">♡</span>
       <div class="hero-date">深掘ると…${dateObj.getMonth()+1}/${dateObj.getDate()}(${WEEK[dateObj.getDay()]}) ${person.name}さんはこんな日</div>
       <div class="hero-headline">${t.theme}</div>
-      ${doyoLead}
       <ul class="hero-bullets">
         <li>${ic('clover','width:14px;height:14px;')}${displayBullets[0]}</li>
         <li>${ic('clover','width:14px;height:14px;')}${displayBullets[1]}</li>
@@ -1095,6 +1096,7 @@ function renderHomeView(person){
           ${daimyou ? '<span class="mb daimyou tap-link" onclick="showDaimyouInfo()">'+ic('sparkle','width:11px;height:11px;')+'大明日</span>' : ''}
           ${kamiyoshi ? '<span class="mb daimyou tap-link" onclick="showKamiyoshiInfo()">'+ic('sparkle','width:11px;height:11px;')+'神吉日</span>' : ''}
           ${tenon ? '<span class="mb daimyou tap-link" onclick="showTenonInfo()">'+ic('sparkle','width:11px;height:11px;')+'天恩日</span>' : ''}
+          ${doyo ? `<span class="mb tap-link" onclick="showDoyoInfo()">${doyo.name} ⓘ</span>` : ''}
         </div>
         <div class="keyword-box">
           <div class="label">${ic('clover','width:14px;height:14px;color:var(--green);')}今日のキーワード</div>
@@ -1120,8 +1122,7 @@ function renderHomeView(person){
         ${avatarSmallHTML(person.id, 58)}
         <span class="badge">今日のテーマ</span>
         <div style="font-size:15px; font-weight:800; color:var(--pink-deep); line-height:1.4; margin-bottom:6px;">${t.theme}</div>
-        <div style="font-size:12px; line-height:1.6; color:var(--text);">${t.desc}</div>
-        ${doyoLead}
+        <div style="font-size:12px; line-height:1.6; color:var(--text);">${personalDesc}</div>
       </div>
     </div>
 
@@ -1171,6 +1172,7 @@ function renderHomeView(person){
         <tr><td class="lab">天恩日</td><td class="val"><span class="tap-link" onclick="showTenonInfo()">${tenon ? '該当します✨' : '該当しません'}</span></td></tr>
         <tr><td class="lab">六曜</td><td class="val">${rokuyo}</td></tr>
         <tr><td class="lab">月相</td><td class="val">${ic('moon','width:14px;height:14px;color:var(--purple);')}${moonName}</td></tr>
+        <tr><td class="lab">土用</td><td class="val"><span class="tap-link" onclick="showDoyoInfo()">${doyo ? `🍂 ${doyo.name}（期間中） ⓘ` : "該当しません ⓘ"}</span></td></tr>
       </table>
       <div class="auto-note">この端末の日付に合わせて自動更新します</div>
       <div class="disclaimer">※土用は毎年自動計算（2026・2027年は公表暦、以降は近似推算）しています。干支・大明日・神吉日・天恩日・六曜は、旧暦(1900〜2100年、香港天文台のデータに基づく)をもとにした計算式で算出しています。占いは楽しみながら参考にしてくださいね。</div>
