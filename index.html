@@ -192,6 +192,8 @@
   .doyo-guide{background:var(--gold-bg);border:1px solid var(--line);border-radius:14px;padding:12px 13px;margin:8px 0 13px;}
   .doyo-guide .doyo-title{font-size:13px;font-weight:800;margin-bottom:6px;color:var(--text);}
   .doyo-guide p{font-size:12.5px;line-height:1.75;color:var(--text);margin:0;}
+  .doyo-compact{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:800;color:var(--text);padding:10px 12px;}
+  .doyo-compact .doyo-more{margin-left:auto;}
   .doyo-more{border:0;background:transparent;color:var(--pink-deep);font:inherit;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer;margin-left:5px;padding:3px;}
   .doyo-mini{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;background:var(--gold-bg);color:var(--text);margin-left:6px;font-weight:700;}
   .gt-bullets .ic-wrap{color:var(--green);}
@@ -224,6 +226,7 @@
   .calendar-table td.lab{color:var(--sub); font-weight:700; width:38%;}
   .calendar-table td.val{font-weight:700; display:flex; align-items:center; gap:5px;}
   .calendar-table td.val .ic-wrap{width:14px; height:14px; color:var(--pink);}
+  .calendar-doyo-link{background:none;border:0;padding:0;text-align:left;font:inherit;color:inherit;cursor:pointer;}
   .auto-note{background:var(--pink-pale); color:var(--pink-deep); font-size:11.5px; font-weight:700; text-align:center; padding:9px; border-radius:12px; margin-top:10px;}
   .disclaimer{font-size:10.5px; color:var(--sub); margin-top:9px; line-height:1.6;}
 
@@ -1005,10 +1008,10 @@ function renderHomeView(person){
   const gBullets = doyo ? doyoActionBullets(gTIdx, ACTIONS[gTIdx]) : ACTIONS[gTIdx];
   const displayBullets = doyo ? doyoActionBullets(tIdx, bullets) : bullets;
   const doyoNotes = doyo ? doyoDomainNotes() : null;
-  const doyoLead = doyo ? `<div class="doyo-adjust"><strong>${doyo.name}を踏まえた今日の過ごし方</strong>${doyoGuidance(tIdx)}</div>` : '';
-  const doyoGlobal = ''; // トップではテーマ直下に統合文を表示するため重複させない
-  const globalDesc = doyo ? doyoGuidance(gTIdx) : gT.desc;
-  const personalDesc = doyo ? doyoGuidance(tIdx) : t.desc;
+  // 共通の説明文を全カード・詳細文で再利用し、通常時の行動指示と混在させない。
+  const dailyAdvice = (theme, index) => doyo ? doyoGuidance(index) : theme.desc;
+  const globalDesc = dailyAdvice(gT, gTIdx);
+  const personalDesc = dailyAdvice(t, tIdx);
   const domainNote = (kind) => doyoNotes ? `<div class="doyo-adjust" style="margin:8px 0 0;padding:8px 10px;"><strong>${doyo.name}の補足</strong>${doyoNotes[kind]}</div>` : '';
 
   const num = calcNumerology(person.birth, dateObj);
@@ -1048,7 +1051,7 @@ function renderHomeView(person){
       <div class="gt-date">${dateObj.getMonth()+1}/${dateObj.getDate()}(${WEEK[dateObj.getDay()]})</div>
       <div class="gt-headline">${gT.theme}</div>
       <div class="gt-desc">${globalDesc}</div>
-      ${doyo ? `<div class="doyo-guide"><div class="doyo-title">🍂 ${doyo.name}の期間（${doyo.start.slice(5).replace('-','/')}〜${doyo.end.slice(5).replace('-','/')}）</div><p>季節の切り替わり。土用は伝統的な暦注のひとつです。無理せず、準備や見直しを大切に。<button type="button" class="doyo-more" onclick="showDoyoInfo()">土用とは？ ⓘ</button></p></div>` : ''}
+      ${doyo ? `<div class="doyo-guide doyo-compact"><span>🍂 ${doyo.name}（${doyo.start.slice(5).replace('-','/')}〜${doyo.end.slice(5).replace('-','/')}）</span><button type="button" class="doyo-more" onclick="showDoyoInfo()">土用について ⓘ</button></div>` : ''}
       <div class="gt-badges">
         <span class="mb tap-link" onclick="showKanshiInfo(${kIdx})">干支 ${kanshi}（${kanshiYomi}）</span>
         ${daimyou ? '<span class="mb daimyou tap-link" onclick="showDaimyouInfo()">'+ic('sparkle','width:11px;height:11px;')+'大明日</span>' : ''}
@@ -1172,7 +1175,7 @@ function renderHomeView(person){
         <tr><td class="lab">天恩日</td><td class="val"><span class="tap-link" onclick="showTenonInfo()">${tenon ? '該当します✨' : '該当しません'}</span></td></tr>
         <tr><td class="lab">六曜</td><td class="val">${rokuyo}</td></tr>
         <tr><td class="lab">月相</td><td class="val">${ic('moon','width:14px;height:14px;color:var(--purple);')}${moonName}</td></tr>
-        <tr><td class="lab">土用</td><td class="val"><span class="tap-link" onclick="showDoyoInfo()">${doyo ? `🍂 ${doyo.name}（期間中） ⓘ` : "該当しません ⓘ"}</span></td></tr>
+        <tr><td class="lab">土用</td><td class="val"><button type="button" class="calendar-doyo-link tap-link" onclick="showDoyoInfo()">${doyo ? `🍂 ${doyo.name}（期間中） ⓘ` : "該当しません ⓘ"}</button></td></tr>
       </table>
       <div class="auto-note">この端末の日付に合わせて自動更新します</div>
       <div class="disclaimer">※土用は毎年自動計算（2026・2027年は公表暦、以降は近似推算）しています。干支・大明日・神吉日・天恩日・六曜は、旧暦(1900〜2100年、香港天文台のデータに基づく)をもとにした計算式で算出しています。占いは楽しみながら参考にしてくださいね。</div>
